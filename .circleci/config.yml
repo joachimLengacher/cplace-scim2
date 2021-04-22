@@ -8,7 +8,7 @@ executors:
     machine:
       image: ubuntu-1604:202004-01
     resource_class: medium
-    working_directory: ~/collaborationFactory/cplace-customer-repo-skeleton
+    working_directory: ~/collaborationFactory/cplace-examples
     shell: /bin/bash --login
     environment:
       JAVA_TOOL_OPTIONS: "-XX:+HeapDumpOnOutOfMemoryError -XX:+ExitOnOutOfMemoryError -XX:HeapDumpPath=/tmp/circleci-artifacts"
@@ -185,7 +185,7 @@ commands:
     steps:
       - run:
           name: "Build Parent Repos"
-          working_directory: ~/collaborationFactory/cplace-customer-repo-skeleton
+          working_directory: ~/collaborationFactory/cplace-examples
           command: |
             set -e
             echo "building the parent repos"
@@ -202,7 +202,7 @@ commands:
     steps:
       - run:
           name: "Build Parent Repos"
-          working_directory: ~/collaborationFactory/cplace-customer-repo-skeleton
+          working_directory: ~/collaborationFactory/cplace-examples
           command: |
             set -e
             echo "building the parent repos"
@@ -385,7 +385,7 @@ parameters:
     default: ""
   ENV_REPO_NAME:
     type: string
-    default: "cplace-customer-repo-skeleton"
+    default: "cplace-examples"
   ENV_INCLUDE_ONLY_REQUIRED_PLUGINS_FROM_REPO:
     type: string
     default: ""
@@ -437,7 +437,7 @@ jobs:
 
   e2e:
     machine: true
-    working_directory: ~/collaborationFactory/cplace-customer-repo-skeleton
+    working_directory: ~/collaborationFactory/cplace-examples
     shell: /bin/bash --login
     environment:
       JAVA_TOOL_OPTIONS: "-XX:+HeapDumpOnOutOfMemoryError -XX:+ExitOnOutOfMemoryError -XX:HeapDumpPath=/tmp/circleci-artifacts"
