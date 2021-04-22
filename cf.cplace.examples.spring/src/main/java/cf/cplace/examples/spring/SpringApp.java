@@ -5,9 +5,13 @@ package cf.cplace.examples.spring;
 
 import javax.annotation.Nonnull;
 
+import cf.cplace.examples.spring.adapter.cplace.ImdbAppTypes;
 import cf.cplace.platform.internationalization.Message;
 import cf.cplace.platform.services.app.ProgrammaticallyDefinedAppWithTypeDefs;
 
+/**
+ * A simple app that demonstrates how the Springframework can be used in cplace apps and plugins.
+ */
 public class SpringApp extends ProgrammaticallyDefinedAppWithTypeDefs {
 
     public static final Message displayName = new Message() {
@@ -17,7 +21,6 @@ public class SpringApp extends ProgrammaticallyDefinedAppWithTypeDefs {
     };
 
     SpringApp() {
-        // package scope, only the plugin creates an instance
     }
 
     @Nonnull
@@ -33,13 +36,13 @@ public class SpringApp extends ProgrammaticallyDefinedAppWithTypeDefs {
 
     @Override
     public String getIconName() {
-        return "fa-info";
+        return "fa-movie";
     }
 
     @Nonnull
     @Override
     protected Class<?>[] getTypeDefContainerClasses() {
-        return new Class<?>[] { SpringAppTypes.class };
+        return new Class<?>[] { ImdbAppTypes.class };
     }
 
 }

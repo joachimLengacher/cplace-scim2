@@ -3,17 +3,13 @@
  */
 package cf.cplace.examples.spring;
 
+import cf.cplace.platform.services.Plugin;
+
 import javax.annotation.Nonnull;
 
-import cf.cplace.platform.handler.TestSetupHandlerExtension;
-import cf.cplace.platform.services.Plugin;
-import cf.cplace.examples.spring.handler.test.TestSetupHandler;
-
 /**
- * TODO Describe the plugin purpose.
+ * A simple plugin that demonstrates how the Springframework can be used in cplace plugins.
  */
-// suppress warning: Extensions that are not used directly should be package-private. They are found by reflection anyway.
-// Without the suppression, they would be reported as unused, but they are used and must not be removed automatically.
 @SuppressWarnings("unused")
 public final class SpringPlugin extends Plugin {
 
@@ -27,8 +23,6 @@ public final class SpringPlugin extends Plugin {
     }
 
     public final SpringApp app = new SpringApp();
-
-    public final TestSetupHandlerExtension testSetupHandlerExtension = new TestSetupHandlerExtension(TestSetupHandler.class);
 
     @Nonnull
     @Override
