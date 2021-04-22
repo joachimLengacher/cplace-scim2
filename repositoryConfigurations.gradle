@@ -1,0 +1,215 @@
+ext {
+    cplaceCredentials = {
+        username = project.findProperty('repo.cplace.apiTokenUser') ?: System.getenv("ENV_CPLACE_ARTIFACTORY_ACTOR")
+        password = project.findProperty('repo.cplace.apiToken') ?: System.getenv("ENV_CPLACE_ARTIFACTORY_TOKEN")
+    }
+    cplaceGradlePlugin = {
+        name = "cplaceGradlePlugin"
+        url = uri("https://cplace.jfrog.io/artifactory/cplace-gradle-plugin/")
+        credentials this.cplaceCredentials
+    }
+    cplaceMainLocal = {
+        name = "cplaceMainLocal"
+        url "${rootDir}/../main/buildDependencies/"
+    }
+    cplaceMain = {
+        name = "cplaceMain"
+        url uri("https://cplace.jfrog.io/artifactory/cplace/")
+        credentials this.cplaceCredentials
+    }
+    cplaceAsposePptExport = {
+        name = "cplaceAsposePptExport"
+        url uri("https://cplace.jfrog.io/artifactory/aspose-ppt-export/")
+        credentials this.cplaceCredentials
+    }
+    cplaceAspose = {
+        name = "cplaceAsposeProxy"
+        url uri("https://cplace.jfrog.io/artifactory/cplace-aspose-proxy/")
+    }
+    cplaceProvidedThirdParty = {
+        name = "cplaceProvidedThirdParty"
+        url uri("https://cplace.jfrog.io/artifactory/provided-third-party/")
+        credentials this.cplaceCredentials
+    }
+    cplacePluginGradlePortal = {
+        name = "cplacePluginGradlePortal"
+        url uri("https://cplace.jfrog.io/artifactory/cplace-plugins-gradle-portal-proxy/")
+    }
+    cplaceJcenter = {
+        name = "cplaceJcenter"
+        url uri("https://cplace.jfrog.io/artifactory/cplace-jcenter-proxy/")
+    }
+    cplaceAnalytics = {
+        name = "cplaceAnalytics"
+        url uri("https://cplace.jfrog.io/artifactory/cplace-analytics/")
+        credentials this.cplaceCredentials
+    }
+    cplaceBoard = {
+        name = "cplaceBoard"
+        url uri("https://cplace.jfrog.io/artifactory/cplace-board/")
+        credentials this.cplaceCredentials
+    }
+    cplaceLbcKvp = {
+        name = "cplaceLbcKvp"
+        url uri("https://cplace.jfrog.io/artifactory/cplace-lbc-kvp/")
+        credentials this.cplaceCredentials
+    }
+    cplaceLicenseManager = {
+        name = "cplaceLicenseManager"
+        url uri("https://cplace.jfrog.io/artifactory/cplace-license-manager/")
+        credentials this.cplaceCredentials
+    }
+    cplaceLoomeo = {
+        name = "cplaceLoomeo"
+        url uri("https://cplace.jfrog.io/artifactory/cplace-loomeo/")
+        credentials this.cplaceCredentials
+    }
+    cplaceLowcodeSoap = {
+        name = "cplaceLowcodeSoap"
+        url uri("https://cplace.jfrog.io/artifactory/cplace-lowcode-soap/")
+        credentials this.cplaceCredentials
+    }
+    cplaceMeetingAdvanced = {
+        name = "cplaceMeetingAdvanced"
+        url uri("https://cplace.jfrog.io/artifactory/cplace-meeting-advanced/")
+        credentials this.cplaceCredentials
+    }
+    cplaceOfficeReports = {
+        name = "cplaceOfficeReports"
+        url uri("https://cplace.jfrog.io/artifactory/cplace-office-reports/")
+        credentials this.cplaceCredentials
+    }
+    cplaceOidc = {
+        name = "cplaceOidc"
+        url uri("https://cplace.jfrog.io/artifactory/cplace-oidc/")
+        credentials this.cplaceCredentials
+    }
+    cplaceProjectPlanning = {
+        name = "cplaceProjectPlanning"
+        url uri("https://cplace.jfrog.io/artifactory/cplace-project-planning/")
+        credentials this.cplaceCredentials
+    }
+    cplaceSoap = {
+        name = "cplaceSoap"
+        url uri("https://cplace.jfrog.io/artifactory/cplace-soap/")
+        credentials this.cplaceCredentials
+    }
+    cplaceSoapOauth2 = {
+        name = "cplaceSoapOauth2"
+        url uri("https://cplace.jfrog.io/artifactory/cplace-soap-oauth2/")
+        credentials this.cplaceCredentials
+    }
+    cplaceUserlane = {
+        name = "cplaceUserlane"
+        url uri("https://cplace.jfrog.io/artifactory/cplace-userlane/")
+        credentials this.cplaceCredentials
+    }
+    cplaceUtilityApps = {
+        name = "cplaceUtilityApps"
+        url uri("https://cplace.jfrog.io/artifactory/cplace-utility-apps/")
+        credentials this.cplaceCredentials
+    }
+    cplaceUtilityWidgets = {
+        name = "cplaceUtilityWidgets"
+        url uri("https://cplace.jfrog.io/artifactory/cplace-utility-widgets/")
+        credentials this.cplaceCredentials
+    }
+    cplaceVdm = {
+        name = "cplaceVdm"
+        url uri("https://cplace.jfrog.io/artifactory/cplace-vdm/")
+        credentials this.cplaceCredentials
+    }
+    cplaceWorkflow = {
+        name = "cplaceWorkflow"
+        url uri("https://cplace.jfrog.io/artifactory/cplace-workflow/")
+        credentials this.cplaceCredentials
+    }
+    cplaceYfiles = {
+        name = "cplaceYfiles"
+        url uri("https://cplace.jfrog.io/artifactory/cplace-yfiles/")
+        credentials this.cplaceCredentials
+    }
+    cplaceCfactoryDeprecatedBoard = {
+        name = "cplaceCfactoryDeprecatedBoard"
+        url uri("https://cplace.jfrog.io/artifactory/cplace-cfactory-deprecated-board/")
+        credentials this.cplaceCredentials
+    }
+    cplaceCfactoryMockups = {
+        name = "cplaceCfactoryMockups"
+        url uri("https://cplace.jfrog.io/artifactory/cplace-cfactory-mockups/")
+        credentials this.cplaceCredentials
+    }
+    cplaceApiJira = {
+        name = "cplaceApiJira"
+        url uri("https://cplace.jfrog.io/artifactory/cplace-api-jira/")
+        credentials this.cplaceCredentials
+    }
+    cplaceApiJms = {
+        name = "cplaceApiJms"
+        url uri("https://cplace.jfrog.io/artifactory/cplace-api-jms/")
+        credentials this.cplaceCredentials
+    }
+    cplaceCp4p = {
+        name = "cplaceCp4p"
+        url uri("https://cplace.jfrog.io/artifactory/cplace-cp4p/")
+        credentials this.cplaceCredentials
+    }
+    cplaceCtts = {
+        name = "cplaceCtts"
+        url uri("https://cplace.jfrog.io/artifactory/cplace-ctts/")
+        credentials this.cplaceCredentials
+    }
+    cplaceTriluxRmCm = {
+        name = "cplaceTriluxRmCm"
+        url uri("https://cplace.jfrog.io/artifactory/cplace-trilux-rm-cm/")
+        credentials this.cplaceCredentials
+    }
+    cplace2LforgeCurves = {
+        name = "cplace2LforgeCurves"
+        url uri("https://cplace.jfrog.io/artifactory/cplace-2lforge-curves/")
+        credentials this.cplaceCredentials
+    }
+    cplaceGenericInterface = {
+        name = "cplaceGenericInterface"
+        url uri("https://cplace.jfrog.io/artifactory/cplace-generic-interface/")
+        credentials this.cplaceCredentials
+    }
+    cplaceProjectPlanningApi = {
+        name = "cplaceProjectPlanningApi"
+        url uri("https://cplace.jfrog.io/artifactory/cplace-project-planning-api/")
+        credentials this.cplaceCredentials
+    }
+    cplaceTriluxrmPcpPsmSap = {
+        name = "cplaceTriluxrmPcpPsmSap"
+        url uri("https://cplace.jfrog.io/artifactory/cplace-triluxrm-pcp-psm-sap/")
+        credentials this.cplaceCredentials
+    }
+    cplaceCfactory = {
+        name = "cplaceCfactory"
+        url uri("https://cplace.jfrog.io/artifactory/cplace-cfactory/")
+        credentials this.cplaceCredentials
+    }
+    cplaceCfactoryMockupsBoardGantt = {
+        name = "cplaceCfactoryMockupsBoardGantt"
+        url uri("https://cplace.jfrog.io/artifactory/cplace-cfactory-mockups-board-gantt/")
+        credentials this.cplaceCredentials
+    }
+    cplaceExamples = {
+        name = "cplaceExamples"
+        url uri("https://cplace.jfrog.io/artifactory/cplace-examples/")
+        credentials this.cplaceCredentials
+    }
+    mainRepositories = {
+        maven this.cplaceMain
+        maven this.cplaceAsposePptExport
+        maven this.cplaceAspose
+        maven this.cplaceProvidedThirdParty
+    }
+    gradlePluginRepositories = {
+        maven this.cplaceMainLocal
+        gradlePluginPortal()
+        maven this.cplacePluginGradlePortal
+        maven this.cplaceJcenter
+        maven this.cplaceGradlePlugin
+    }
+}

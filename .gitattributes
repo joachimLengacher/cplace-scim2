@@ -1,0 +1,78 @@
+# Prevent Git from parsing PDF files when using "git log -S"; the embedded PDF parser does not handle all PDF so well, leading to messages like "May not be a PDF file (continuing anyway)"
+# see http://stackoverflow.com/questions/9656552/how-to-turn-off-git-1-7-8-overhead-for-binary-files-doc-pdf-etc
+*.pdf !diff
+*.PDF !diff
+
+# force detection as text despite potentially containing non-ascii characters
+*.coffee       text
+*.css          text
+*.groovy       text
+*.htm          text
+*.html         text
+*.iml          text
+*.java         text diff=java
+*.js           text
+*.json         text
+*.launch       text
+*.less         text
+*.properties   text
+*.svg          text
+*.ts           text
+*.txt          text
+*.wsdl         text
+*.xml          text
+*.xsd          text
+*.xsl          text
+*.yml          text
+.gitattributes text
+.gitignore     text
+
+# force Windows/Unix line endings regardless of local platform; "eol" implies "text"
+*.bat          eol=crlf
+*.cmd          eol=crlf
+*.sh           eol=lf
+gradlew        eol=lf
+
+# force detection as binary
+*.dll          binary
+*.doc          binary
+*.docx         binary
+*.exe          binary
+*.gif          binary
+*.ico          binary
+*.jar          binary
+*.mpp          binary
+*.mpx          binary
+*.msi          binary
+*.pdf          binary
+*.png          binary
+*.ppt          binary
+*.pptx         binary
+*.rpx          binary
+*.ttf          binary
+*.woff         binary
+*.woff2        binary
+*.xls          binary
+*.xlsx         binary
+*.zip          binary
+
+# for all other file endings, we rely on the default heuristics for text/binary distinction
+
+
+###
+# see https://intranet.collaboration-factory.de/pages/cqjoxwzww261ydn9r3oym5waf/Release-Notes
+#
+# Install a recent node.js version (7.5.0 as of this writing)
+# Run this command, to install cplace-cli: npm install -g @cplace/cli
+# Run this command, to check the installation: cplace-cli
+# Append these 3 lines to you repository's .git/config (without the # of course):
+###
+# [merge "cplace-msgs"]
+#	name = cplace Release Notes Messages DB merger
+#	driver = cplace-cli release-notes --merge --current %A --other %B --base %O
+###
+
+# We tell git to use the merge driver we just registered. This also works for merging from IntelliJ IDEA.
+# We tell git to checkout the files using Linux line separators, which are currently required by cplace-cli.
+release-notes/messages_*.db merge=cplace-msgs eol=lf
+release-notes/explicits_*.db merge=cplace-msgs eol=lf

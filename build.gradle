@@ -1,0 +1,71 @@
+import java.nio.file.Paths
+
+buildscript {
+    apply from: 'repositoryConfigurations.gradle'
+    repositories this.gradlePluginRepositories
+    dependencies {
+        classpath 'cf.cplace.build:cplace-gradle-plugin:1.+'
+    }
+}
+apply plugin: 'cplace-gradle-plugin'
+
+group = 'cf.cplace.examples'
+
+cplace {
+    artifactGroup = 'cf.cplace'
+    artifactVersion = project.version
+}
+
+allprojects {
+    if (project.hasProperty('noIncludes') && project.getProperty('noIncludes')) {
+        dependencies {
+            api fileTree(dir: Paths.get(System.properties['user.home'], '.cplace_build', 'cplace', cplace.artifactGroup, cplace.artifactVersion), include: '*.jar')
+            standalone fileTree(dir: Paths.get(System.properties['user.home'], '.cplace_build', 'cplace', cplace.artifactGroup, cplace.artifactVersion, 'standalone'), include: '*.jar')
+        }
+    }
+    configurations.all { resolutionStrategy.cacheChangingModulesFor 0, 'seconds' }
+    repositories {
+        repositories this.mainRepositories
+        repositories {
+            maven this.cplaceExamples
+        }
+    }
+    publishing {
+        repositories {
+            maven this.cplaceExamples
+        }
+    }
+}
+
+subprojects { sub ->
+    afterEvaluate {
+        if (!sub.hasProperty("isCplacePlugin") || sub.isCplacePlugin) {
+            dependencies {
+                // all cplace plugins get a test dependency to the platform test fixtures
+                testImplementationCplacePlugin("${cplace.artifactGroup}:cf.cplace.platform:${cplace.artifactVersion}") {
+                    capabilities {
+                        requireCapability("${cplace.artifactGroup}:cf.cplace.platform-test-fixtures:${cplace.artifactVersion}")
+                    }
+                }
+            }
+        }
+    }
+    test {
+        minHeapSize = "1g"
+        maxHeapSize = "3g"
+        testLogging {
+            exceptionFormat "full"
+
+            // set options for log level DEBUG
+            debug {
+                events "failed"
+                displayGranularity -1
+                exceptionFormat "full"
+                showExceptions true
+                showCauses true
+                showStackTraces true
+            }
+        }
+    }
+}
+
