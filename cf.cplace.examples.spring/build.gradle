@@ -1,0 +1,3 @@
+dependencies {
+	cplacePlugin "${cplace.artifactGroup}:cf.cplace.platform:${cplace.artifactVersion}"
+}

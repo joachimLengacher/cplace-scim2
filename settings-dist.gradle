@@ -1,6 +1,6 @@
 rootProject.name = 'cplace-examples'
 
-// include ':cf.cplace.customerRepoSkeleton.xyz'
+include ':cf.cplace.examples.spring'
 
 if (!hasProperty('noIncludes') || !getProperty('noIncludes')) {
     includeBuild('../main')
