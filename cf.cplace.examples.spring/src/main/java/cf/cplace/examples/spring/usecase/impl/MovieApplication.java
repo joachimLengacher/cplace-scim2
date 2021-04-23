@@ -2,6 +2,7 @@ package cf.cplace.examples.spring.usecase.impl;
 
 import java.util.Collection;
 
+import cf.cplace.examples.spring.usecase.DirectorUseCase;
 import com.google.common.base.Preconditions;
 
 import cf.cplace.examples.spring.domain.model.Movie;
@@ -9,7 +10,7 @@ import cf.cplace.examples.spring.domain.port.MovieRepository;
 import cf.cplace.examples.spring.usecase.CreateMovieUseCase;
 import cf.cplace.examples.spring.usecase.FindMovieUseCase;
 
-public class MovieApplication implements FindMovieUseCase, CreateMovieUseCase {
+public class MovieApplication implements FindMovieUseCase, CreateMovieUseCase, DirectorUseCase {
 
     private final MovieRepository movieRepository;
 
@@ -35,5 +36,10 @@ public class MovieApplication implements FindMovieUseCase, CreateMovieUseCase {
     @Override
     public String create(String name) {
         return movieRepository.create(name);
+    }
+
+    @Override
+    public void addDirectorToMovie(String actorId, String movieId) {
+        // TODO:
     }
 }

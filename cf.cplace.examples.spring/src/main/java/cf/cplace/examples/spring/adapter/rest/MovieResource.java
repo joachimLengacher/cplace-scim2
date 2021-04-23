@@ -22,7 +22,7 @@ import cf.cplace.examples.spring.usecase.FindMovieUseCase;
 import cf.cplace.platform.api.web.annotation.CplaceRequestMapping;
 
 @RestController
-@CplaceRequestMapping(path = "cf.cplace.examples.spring")
+@CplaceRequestMapping(path = "/cf.cplace.examples.spring")
 public class MovieResource {
 
     private final FindMovieUseCase findMovieUseCase;

@@ -1,0 +1,334 @@
+## cf.cplace.examples.spring
+
+A plugin to demonstrate how to make use of the [Spring Framework](https://spring.io/projects/spring-framework) and
+dependency injection in a cplace plugin. It is based on the example of the IMDB movie database which is also used
+in cplace developer trainings.
+
+### Architectural Considerations & General Package Structure
+
+---
+This section only points out how we organized the code in this example plugin and suggests how one
+could apply a clean architecture in a plugin. Doing it like this in a smaller plugin may be an overkill though.
+There is no requirement from cplace to organize plugin code like this to
+work with Spring. All that is needed for this is a Spring configuration class as pointed out in
+[The Spring Context & Dependency Injection](#the-spring-context--dependency-injection).
+
+---
+
+#### The Clean Plugin Architecture
+
+The organization of the code in this plugin is based on Robert C. Martin's
+[The Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
+which aims at the separation of concerns, testability and independence of frameworks. So we propose to keep the inner
+workings of your plugin separate from
+
+* the Spring framework
+* any endpoints such as REST resources or UI
+* the code that connects it to the cplace platform or other systems and backends
+
+The plugin's code is therefore organized into four different areas as depicted below. The red arrows show how the
+dependencies should be organized, so they don't break the [Dependency Rule](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html#the-dependency-rule).
+
+![clean plugin architecture](img/clean-plugin-architecture.png)
+
+Accordingly, the code in this example is structured into the following packages, each representing one of these areas.
+
+#### The `domain` package
+
+The `domain` package contains the core domain objects of the plugin which are further split into a `model`package
+and a `port`package.
+
+##### The `model`package
+This package contains the core domain model (the entities) of the plugin. These can be plain data structures, objects
+with functions, enums etc. Classes in this package have no dependency on Spring or cplace, they are POJOs.
+For example in this plugin we have created a [Movie](src/main/java/cf/cplace/examples/spring/domain/model/Movie.java)
+class that represents a core entity of our plugin.
+
+##### The `port` package
+This package contains the interfaces that allow to "plug in" concrete adapters that provide functionality for the
+domain model. In this example, we have created a [MovieRepository](src/main/java/cf/cplace/examples/spring/domain/port/MovieRepository.java)
+that allows to plugin in the [CplaceMovieRepository](src/main/java/cf/cplace/examples/spring/adapter/cplace/CplaceMovieRepository.java)
+which in turn provides the concrete implementation to store [Movie](src/main/java/cf/cplace/examples/spring/domain/model/Movie.java)
+instances in cplace.
+
+#### The `usecase` package
+The plugin specific business rules are contained within this package. In our example plugin we have use cases such as
+[create movie](src/main/java/cf/cplace/examples/spring/usecase/CreateMovieUseCase.java) or
+[add director to movie](src/main/java/cf/cplace/examples/spring/usecase/DirectorUseCase.java)
+
+#### The `adapter` package
+
+The `adapter` package contains the code that connects the plugin's application logic with "the outside world". In this
+example we have implemented two adapters, a simple [REST resource](src/main/java/cf/cplace/examples/spring/adapter/rest)
+which adapts incoming REST calls to the plugin's business logic and a
+[cplace adapter](src/main/java/cf/cplace/examples/spring/adapter/cplace) which integrates the plugin with the cplace platform.
+
+##### The `rest` package
+
+A REST resource that is implemented as a Spring `@RestController`.
+
+##### The `cplace` package
+
+A repository implementation that implements the plugin's [ports](#the-port-package) and allows to store the plugin's
+POJO model objects in cplace.
+
+#### The `assembly` package
+
+The `assembly` package contains the Spring infrastructure code that defines how all the plugin's components are
+assembled. This is also the place where dependency injection comes into play. See
+[The Spring Context & Dependency Injection](#the-spring-context--dependency-injection) below.
+
+### The Spring Context & Dependency Injection
+
+---
+This example plugin's Spring configuration can be found [here](src/main/java/cf/cplace/examples/spring/assembly/PluginSpringConfiguration.java).
+
+---
+
+During start-up, cplace will collect the class named `<plugin root folder>/assembly/PluginSpringConfiguration` of each plugin
+if it is present. If it is not present, the plugin will simply not be considered for cplace Spring context, and
+will just be interpreted as a traditional cplace plugin. The class should be annotated with Spring's `@Configuration` annotation
+and can contain anything that a typical Spring configuration can contain, most importantly the bean definitions, of course.
+In this example we have decided to keep our domain objects POJOs (see [The Clean Architecture](#the-clean-plugin-architecture)
+above). That's why they all need to be instantiated explicitly in the Spring configuration. Of course dependency injection
+works in Spring configuration files:
+
+```Java
+@Configuration
+public class PluginSpringConfiguration {
+
+    @Bean
+    public MovieRepository movieRepository() {
+        return new CplaceMovieRepository();
+    }
+
+    @Bean
+    public MovieApplication movieApplication(MovieRepository movieRepository) { // MovieRepository instance injected here by Spring
+        return new MovieApplication(movieRepository);
+    }
+    
+    // ...
+}
+```
+
+However, if you want to have it more convenient and don't mind so much having Spring annotations in your model objects,
+the Spring component scan can also be used. Make sure that you apply it to your plugin only though!
+
+For example, you could have all classes in your plugin scanned for potential Spring components. In that case the
+`PluginSpringConfiguration`'s only purpose is to carry the annotation. Apart from that it's empty.
+
+```Java
+@ComponentScan("cf.cplace.examples")
+public class PluginSpringConfiguration {
+}
+```
+
+Of course, for your components to be picked up and instantiated by Spring in this case, they need to annotated accordingly.
+Any of Spring's well known stereotypes work here (`@Component`, `@Service`, `@Repository`, `@Controller`).
+
+```Java
+@Component
+public class MovieApplication {
+    // ...
+}
+```
+
+Also, a matter of taste might be, how you want to have your component's dependencies injected in this case. We have 
+opted for constructor injection in this example plugin as we believe it improves testability. However, everything that
+Spring supports is also supported by cplace:
+
+```Java
+import org.springframework.beans.factory.annotation.Autowired;
+import javax.inject.Inject;
+        
+@RestController
+public class MovieResource {
+
+    @Autowired // Spring annotations work
+    private final FindMovieUseCase findMovieUseCase;
+
+    @Inject // standard Java annotations work
+    private final CreateMovieUseCase createMovieUseCase;
+    
+    public MovieResource(@Autowired FindMovieUseCase findMovieUseCase) { // constructor injection works
+        // ...
+    }
+}
+```
+
+A middle course could be to keep the model objects POJOs and to instantiate them manually as shown in this example while
+applying the component scan to packages that contain Spring code anyway, such as our REST resource, which is a Spring
+`@RestController` (note that a `@RestController` also is a `@Controller`).
+
+```Java
+// component scan for a sub-package only
+@ComponentScan("cf.cplace.examples.adapter.rest")
+public class PluginSpringConfiguration {
+    
+    // this is needed as MovieApplication is a POJO
+    @Bean
+    public MovieApplication movieApplication(MovieRepository movieRepository) {
+        return new MovieApplication(movieRepository);
+    }
+    
+//    This is not needed, it will be picked up by the component scan now.
+//    @Bean
+//    public MovieResource movieResource(MovieApplication movieApplication) {
+//        return new MovieResource(movieApplication, movieApplication);
+//    }
+}
+```
+
+#### The Plugin Bean
+
+cplace will at start-up also silently register your plugin class (i.e. the class in your plugin code that extends
+`cf.cplace.platform.services.Plugin`) as a Spring bean. Therefore, it could theoretically also be injected into your
+components:
+
+```Java
+@Bean
+public MovieApplication movieApplication(
+        MovieRepository movieRepository,
+        SpringPlugin springPugin) { // Spring will inject our plugin instance
+    // ...    
+}
+```
+
+However, doing so may violate the plugin's [Clean Architecture](#the-clean-plugin-architecture).
+
+### Spring Controllers
+
+---
+This example plugin's Spring controller can be found [here](src/main/java/cf/cplace/examples/spring/adapter/rest/MovieResource.java).
+
+---
+
+In cplace, Spring controllers can be defined just like standard Spring controllers, including `@RequestMapping`,
+`@PathVariable`, `@RequestParam`, `@ResponseStatus` and many more things. There is only speciality to cplace, however.
+*cplace Spring controller classes must be annotated with `@CplaceRequestMapping` and the annotations `path`
+attribute must be set to your plugins qualified name:
+
+```Java
+@RestController
+@CplaceRequestMapping(path = "/cf.cplace.examples.spring")
+public class MovieResource {
+    //...
+}
+```
+
+This has the following reasons:
+
+* your plugin's resources should be unique and not collide with resources of other plugins nor with those of traditional
+  cplace handlers.
+* depending on cplace's configuration and operation mode, all resources may need to be prefixed e.g. with the cplace
+  context, a tenant ID etc.
+  
+By using the `@CplaceRequestMapping` the cplace platform will take care of these issues for you. 
+
+#### URL Mappings
+
+AS described above, the `path` specified in `@CplaceRequestMapping` is relative to the cplace root context. The following
+cplace properties affect the controllers final URL:
+
+* `cplace.context` (defaults to `/intern/tricia` on local development systems and to `/` on production systems)
+* `cplace.isMultiTenancy` (defaults to `false` on local development systems)
+* `cplace.webEndpointPathElement` (defaults to `cplace-api`, used to distinguish the Spring controller resources form the
+  traditional cplace handler resources)
+  
+On a single tenant system, your controller's full paths typically look as follows:
+
+`/<cplace.context>/<cplace.webEndpointPathElement>/<qualified plugin name>`
+
+which in our example translates to
+
+`http://localhost:8083/intern/tricia/cplace-api/cf.cplace.examples.spring`
+
+on a local development system and if none of the above properties deviates from its default value.
+
+On a multi tenant system, the path also contains the tenant ID:
+
+`/<cplace.context>/<tenant ID>/<cplace.webEndpointPathElement>/<qualified plugin name>`
+
+which in our example translates to
+
+`http://localhost:8083/intern/tricia/tricia/cplace-api/cf.cplace.examples.spring`
+
+on a local development system and if none of the above properties deviates from its default value and `tricia` being
+the default tenant ID on local development systems.
+
+Beyond this constraint, your Spring controller can now freely define URL mappings. E.g., in order to provide movies,
+you could do:
+
+```Java
+@CplaceRequestMapping(path = "/cf.cplace.examples.spring")
+public class MovieResource {
+    
+    @GetMapping(value = {"/movie/{id}"}, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public MovieRepresentation findById(@PathVariable("id") String id) {
+        // ...
+    }
+}
+```
+Assuming the defaults above, a concrete movie resource might be available at
+
+`http://localhost:8083/intern/tricia/tricia/cplace-api/cf.cplace.examples.spring/movie/hhbu393jjtqpbd2grvsgx61um`
+
+in this case.
+
+#### Error Handling
+
+---
+This example plugin's error handler for controllers can be found [here](src/main/java/cf/cplace/examples/spring/adapter/rest/GlobalExceptionHandler.java).
+
+---
+
+Again, there is nothing cplace specific to handling errors in your Spring controllers, any Spring best practice can be applied.
+One of them is to write a global `@ControllerAdvice` that deals with all the exceptions that might occur in any of your plugin's
+Spring controllers as we have done in this example plugin:
+
+```Java
+@ControllerAdvice
+@Order(Ordered.HIGHEST_PRECEDENCE) // prefer this over the default cplace exception handler
+public class GlobalExceptionHandler {
+    
+    @ExceptionHandler(NotFoundException.class)
+    protected ResponseEntity<Error> entityNotFoundHandler(NotFoundException notFoundException) {
+        return createErrorResponse(notFoundException.getMessage(), HttpStatus.NOT_FOUND);
+    }
+}
+```
+
+Note that cplace itself already has a `@ControllerAdvice` that serves as a fallback and handles all exceptions that
+might not have been handled so far: 
+
+```Java
+@ControllerAdvice
+public class GlobalRestExceptionHandler extends ResponseEntityExceptionHandler {
+    
+    // ...
+    
+    /**
+     * Handles all exceptions for which there is no specific handler by returning a general INTERNAL_SERVER_ERROR
+     * status code and a JSON response with a generic error message.
+     */
+    @ExceptionHandler(Exception.class)
+    @ResponseBody
+    protected ResponseEntity<ApiError> handleGeneralExceptions(Exception ex) {
+      return apiError(INTERNAL_SERVER_ERROR, ex, "Unexpected internal server error");
+    }
+}
+```
+
+This has the following consequences for your plugin's exception handler:
+
+* it doesn't have to provide a fallback handler for `Exception` unless you want to do something else than the default
+  handler in this case
+* your `@ControllerAdvice` must have higher precedence than the default cplace one
+  (see `@Order(Ordered.HIGHEST_PRECEDENCE)` above)
+
+#### Security
+
+#### Accessing cplace API
+
+### Testing

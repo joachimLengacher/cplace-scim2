@@ -7,3 +7,13 @@ Project| Product Repo
 Responsibility |	FULL
 Developed by 	|collaboration Factory AG
 Description | This repository contains version constraints for dependencies used by the cplace product.
+
+# cplace-examples
+
+A collection of examples and best practices for cplace development.
+
+## [cf.cplace.examples.spring](cf.cplace.example.spring/README.md)
+
+A plugin to demonstrate how to make use of the [Spring Framework](https://spring.io/projects/spring-framework) and
+dependency injection in a cplace plugin. It is based on the example of the IMDB movie database which is also used
+in cplace developer trainings.
