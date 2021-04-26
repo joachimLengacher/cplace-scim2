@@ -4,6 +4,31 @@ A plugin to demonstrate how to make use of the [Spring Framework](https://spring
 dependency injection in a cplace plugin. It is based on the example of the IMDB movie database which is also used
 in cplace developer trainings.
 
+### Table of Contents
+
+* [cf.cplace.examples.spring](#cfcplaceexamplesspring)
+ * [Table of Contents](#table-of-contents)
+ * [Architectural Considerations &amp; General Package Structure](#architectural-considerations--general-package-structure)
+    * [The Clean Plugin Architecture](#the-clean-plugin-architecture)
+    * [The domain package](#the-domain-package)
+       * [The modelpackage](#the-modelpackage)
+       * [The port package](#the-port-package)
+    * [The usecase package](#the-usecase-package)
+    * [The adapter package](#the-adapter-package)
+       * [The rest package](#the-rest-package)
+       * [The cplace package](#the-cplace-package)
+    * [The assembly package](#the-assembly-package)
+ * [The Spring Context &amp; Dependency Injection](#the-spring-context--dependency-injection)
+    * [The Plugin Bean](#the-plugin-bean)
+ * [Spring Controllers](#spring-controllers)
+    * [URL Mappings](#url-mappings)
+    * [Error Handling](#error-handling)
+    * [Security](#security)
+       * [Authentication](#authentication)
+       * [Authorization](#authorization)
+ * [Testing](#testing)
+
+
 ### Architectural Considerations & General Package Structure
 
 ---
@@ -227,7 +252,7 @@ By using the `@CplaceRequestMapping` the cplace platform will take care of these
 
 #### URL Mappings
 
-AS described above, the `path` specified in `@CplaceRequestMapping` is relative to the cplace root context. The following
+As described above, the `path` specified in `@CplaceRequestMapping` is relative to the cplace root context. The following
 cplace properties affect the controllers final URL:
 
 * `cplace.context` (defaults to `/intern/tricia` on local development systems and to `/` on production systems)
@@ -275,6 +300,8 @@ Assuming the defaults above, a concrete movie resource might be available at
 `http://localhost:8083/intern/tricia/tricia/cplace-api/cf.cplace.examples.spring/movie/hhbu393jjtqpbd2grvsgx61um`
 
 in this case.
+
+Note that all resources are secured by cplace per default. See [Security](#security) for more details on this.
 
 #### Error Handling
 
@@ -329,6 +356,32 @@ This has the following consequences for your plugin's exception handler:
 
 #### Security
 
-#### Accessing cplace API
+##### Authentication
+
+The cplace Spring controllers are secured by [Spring Security](https://docs.spring.io/spring-security/site/docs/current/reference/html5/).
+The [Spring Security Architecture](https://spring.io/guides/topicals/spring-security-architecture) topical guide provides
+a good introduction to this.
+
+On production systems, cplace secures all endpoints that are created through Spring controllers and provides no way to
+access them per default. Access has to be enabled in one of the following ways:
+
+* by adding one of the cplace authentication plugins
+* by providing your own authentication provider.
+* by enabling Basic Authentication in the cplace platform through setting the property `cplace.security.basic.enabled=true`.
+  It authenticates against the cplace user management. *Basic Authentication is not recommended on production systems, however!*
+
+On local development systems a Basic Authentication provider is enabled per default.
+
+Custom authentication is added the easiest by registering your custom implementation of a
+`org.springframework.security.authentication.AuthenticationProvider` as a Spring bean. Also have a look at
+`cf.cplace.platform.application.security.BasicAuthenticationProvider` to get some pointers on how to do this.
+
+##### Authorization
+
+If the `AuthentocationProvider`'s `authenticate` method returns an `Authentication` instance which in turn has a principle
+of type `cf.cplace.platform.internal.api.security.CplaceUserDetails`, then cplace will automatically log in this
+user with the cplace session (see `cf.cplace.platform.application.rest.SessionAndRequestLocalInterceptor` for details).
+This will 'hook' the current thread into the cplace authorization system. So any attempt to read or write cplace
+entities from within Spring controllers will now be checked against the cplace authentication system.
 
 ### Testing
