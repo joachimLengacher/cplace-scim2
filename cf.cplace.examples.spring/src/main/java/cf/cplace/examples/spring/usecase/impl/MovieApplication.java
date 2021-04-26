@@ -1,21 +1,23 @@
 package cf.cplace.examples.spring.usecase.impl;
 
-import java.util.Collection;
-
-import cf.cplace.examples.spring.usecase.DirectorUseCase;
-import com.google.common.base.Preconditions;
-
 import cf.cplace.examples.spring.domain.model.Movie;
+import cf.cplace.examples.spring.domain.port.DirectorRepository;
 import cf.cplace.examples.spring.domain.port.MovieRepository;
+import cf.cplace.examples.spring.usecase.AssignDirectorUseCase;
 import cf.cplace.examples.spring.usecase.CreateMovieUseCase;
 import cf.cplace.examples.spring.usecase.FindMovieUseCase;
+import com.google.common.base.Preconditions;
 
-public class MovieApplication implements FindMovieUseCase, CreateMovieUseCase, DirectorUseCase {
+import java.util.Collection;
+
+public class MovieApplication implements FindMovieUseCase, CreateMovieUseCase, AssignDirectorUseCase {
 
     private final MovieRepository movieRepository;
+    public final DirectorRepository directorRepository;
 
-    public MovieApplication(MovieRepository movieRepository) {
+    public MovieApplication(MovieRepository movieRepository, DirectorRepository directorRepository) {
         this.movieRepository = Preconditions.checkNotNull(movieRepository);
+        this.directorRepository = Preconditions.checkNotNull(directorRepository);
     }
 
     @Override

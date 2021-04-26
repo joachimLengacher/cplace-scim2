@@ -48,11 +48,6 @@ public class CplaceMovieRepository implements MovieRepository {
         }
     }
 
-    @Nonnull
-    private Movie toMovie(Page moviePage) {
-        return new Movie(moviePage.getId(), moviePage.getNameNotEmpty());
-    }
-
     @Override
     public Collection<Movie> findAll() {
         try {
@@ -84,5 +79,10 @@ public class CplaceMovieRepository implements MovieRepository {
         } catch (ProtectedEntityException e) {
             throw new ForbiddenException();
         }
+    }
+
+    @Nonnull
+    private Movie toMovie(Page moviePage) {
+        return new Movie(moviePage.getId(), moviePage.getNameNotEmpty());
     }
 }
