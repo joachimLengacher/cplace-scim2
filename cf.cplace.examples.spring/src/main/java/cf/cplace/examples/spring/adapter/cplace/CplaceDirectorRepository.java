@@ -28,7 +28,7 @@ public class CplaceDirectorRepository implements DirectorRepository {
             Page page = Page.SCHEMA.createPageAndPersist(space, ImdbAppTypes.DIRECTOR.TYPE, p -> {
                 p._name().set(name);
                 if (birthday != null) {
-                    p.set(ImdbAppTypes.DIRECTOR.birthday, toDate(birthday));
+                    p.set(ImdbAppTypes.DIRECTOR.BIRTHDAY, toDate(birthday));
                 }
             });
             return page.getId();
@@ -66,7 +66,7 @@ public class CplaceDirectorRepository implements DirectorRepository {
     }
 
     private Director toDirector(Page directorPage) {
-        return new Director(directorPage.getId(), directorPage.getNameNotEmpty(),  toLocalDate(directorPage.get(ImdbAppTypes.DIRECTOR.birthday)));
+        return new Director(directorPage.getId(), directorPage.getNameNotEmpty(),  toLocalDate(directorPage.get(ImdbAppTypes.DIRECTOR.BIRTHDAY)));
     }
 
     private Date toDate(@Nullable LocalDate localDate) {

@@ -1,5 +1,7 @@
 package cf.cplace.examples.spring.adapter.rest;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.time.LocalDate;
 
 public final class DirectorRepresentation {
@@ -20,5 +22,10 @@ public final class DirectorRepresentation {
 
     public String getName() {
         return name;
+    }
+
+    @JsonFormat(pattern="yyyy-MM-dd")
+    public LocalDate getBirthday() {
+        return birthday;
     }
 }

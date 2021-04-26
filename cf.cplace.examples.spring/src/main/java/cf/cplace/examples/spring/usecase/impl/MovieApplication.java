@@ -41,7 +41,9 @@ public class MovieApplication implements FindMovieUseCase, CreateMovieUseCase, A
     }
 
     @Override
-    public void addDirectorToMovie(String actorId, String movieId) {
-        // TODO:
+    public void addDirectorToMovie(String directorId, String movieId) {
+        Movie movie = movieRepository.findById(movieId);
+        movie.setDirectorId(directorId);
+        movieRepository.save(movie);
     }
 }

@@ -8,6 +8,8 @@ public interface MovieRepository {
 
     String create(String name);
 
+    void save(Movie movie);
+
     Movie findById(String id);
 
     Collection<Movie> findByName(String name);

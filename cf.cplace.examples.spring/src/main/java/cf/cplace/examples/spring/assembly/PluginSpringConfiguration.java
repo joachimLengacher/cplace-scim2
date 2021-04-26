@@ -37,7 +37,7 @@ public class PluginSpringConfiguration {
 
     @Bean
     public MovieResource movieResource(MovieApplication movieApplication) {
-        return new MovieResource(movieApplication, movieApplication);
+        return new MovieResource(movieApplication, movieApplication, movieApplication);
     }
 
     @Bean
