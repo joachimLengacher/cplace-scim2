@@ -30,7 +30,7 @@ public class Director {
     }
 
     public void setName(@Nullable String name) {
-        this.name = name;
+        this.name = Preconditions.checkNotNull(name);
     }
 
     @Nullable
@@ -40,5 +40,25 @@ public class Director {
 
     public void setBirthday(LocalDate birthday) {
         this.birthday = birthday;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Director director = (Director) o;
+
+        if (!getId().equals(director.getId())) return false;
+        if (!getName().equals(director.getName())) return false;
+        return getBirthday() != null ? getBirthday().equals(director.getBirthday()) : director.getBirthday() == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getId().hashCode();
+        result = 31 * result + getName().hashCode();
+        result = 31 * result + (getBirthday() != null ? getBirthday().hashCode() : 0);
+        return result;
     }
 }

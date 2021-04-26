@@ -35,4 +35,24 @@ public class Movie {
     public void setDirectorId(@Nullable String directorId) {
         this.directorId = directorId;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Movie movie = (Movie) o;
+
+        if (!getId().equals(movie.getId())) return false;
+        if (!getName().equals(movie.getName())) return false;
+        return getDirectorId() != null ? getDirectorId().equals(movie.getDirectorId()) : movie.getDirectorId() == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getId().hashCode();
+        result = 31 * result + getName().hashCode();
+        result = 31 * result + (getDirectorId() != null ? getDirectorId().hashCode() : 0);
+        return result;
+    }
 }

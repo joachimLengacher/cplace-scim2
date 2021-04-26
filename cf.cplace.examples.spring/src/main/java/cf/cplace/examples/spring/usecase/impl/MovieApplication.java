@@ -13,11 +13,9 @@ import java.util.Collection;
 public class MovieApplication implements FindMovieUseCase, CreateMovieUseCase, AssignDirectorUseCase {
 
     private final MovieRepository movieRepository;
-    public final DirectorRepository directorRepository;
 
-    public MovieApplication(MovieRepository movieRepository, DirectorRepository directorRepository) {
+    public MovieApplication(MovieRepository movieRepository) {
         this.movieRepository = Preconditions.checkNotNull(movieRepository);
-        this.directorRepository = Preconditions.checkNotNull(directorRepository);
     }
 
     @Override

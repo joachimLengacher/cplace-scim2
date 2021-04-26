@@ -385,3 +385,33 @@ This will 'hook' the current thread into the cplace authorization system. So any
 entities from within Spring controllers will now be checked against the cplace authentication system.
 
 ### Testing
+
+Having implemented the plugin's core functionality as POJOs and independent form the REST endpoints as well as from
+the cplace interface code as described in
+[Architectural Considerations & General Package Structure](#architectural-considerations--general-package-structure),
+allows us to test the plugin's core functionality with plain JUnit tests. Each component's dependency can easily be
+mocked either with either POJOs or with Mockito, as shown for example in
+[MovieApplicationTest](src/test/java/cf/cplace/examples/spring/usecase/impl/MovieApplicationTest.java).
+
+The cplace adapter on the other hand can also be tested independent of our plugin. Testing the adapter through our
+domain interfaces documents and verifies the assumptions we rely on when it comes to cplace functionality. An
+example of such a test can be found in
+[CplaceMovieRepositoryTest](src/test/java/cf/cplace/examples/spring/adapter/cplace/CplaceMovieRepositoryTest.java).
+
+Note, that when we instantiate the cplace `StartServerRule` with the test's instance as a constructor argument, then we
+can have any of the beans that we defined in the Spring context injected into our test:
+
+```Java
+public class CplaceMovieRepositoryTest {
+    @Rule
+    public TestRule startServer = new StartServerRule(this); // pass 'this' as the argument
+
+    @Inject
+    private MovieRepository movieRepository; // injected by Spring
+
+    @Inject
+    private DirectorRepository directorRepository; // injected by Spring
+    
+    // tests here
+}
+```

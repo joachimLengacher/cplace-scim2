@@ -26,8 +26,8 @@ public class PluginSpringConfiguration {
     }
 
     @Bean
-    public MovieApplication movieApplication(MovieRepository movieRepository, DirectorRepository directorRepository) {
-        return new MovieApplication(movieRepository, directorRepository);
+    public MovieApplication movieApplication(MovieRepository movieRepository) {
+        return new MovieApplication(movieRepository);
     }
 
     @Bean
