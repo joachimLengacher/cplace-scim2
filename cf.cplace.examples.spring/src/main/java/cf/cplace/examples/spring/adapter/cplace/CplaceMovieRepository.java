@@ -8,6 +8,7 @@ import cf.cplace.platform.assets.file.Page;
 import cf.cplace.platform.assets.file.PageSpace;
 import cf.cplace.platform.assets.search.Filters;
 import cf.cplace.platform.assets.search.Search;
+import cf.cplace.platform.orm.PersistentEntity;
 import cf.cplace.platform.services.exceptions.EntityNotFoundException;
 import cf.cplace.platform.services.exceptions.ProtectedEntityException;
 import com.google.common.base.Preconditions;
@@ -38,8 +39,16 @@ public class CplaceMovieRepository implements MovieRepository {
     @Override
     public void save(Movie movie) {
         try {
-            updateMovie(movie);
-            updateMovieDirector(movie);
+            Page movieEntity = Page.SCHEMA.getEntityNotNull(movie.getId());
+            PersistentEntity.doOnWritableCopyAndPersistIfModified(movieEntity, m-> {
+                m._name().set(movie.getName());
+                if (movie.getDirectorId() != null) {
+                    Page directorEntity = Page.SCHEMA.getEntityNotNull(movie.getDirectorId());
+                    m.set(ImdbAppTypes.MOVIE.MOVIE_DIRECTOR, directorEntity);
+                } else {
+                    m.set(ImdbAppTypes.MOVIE.MOVIE_DIRECTOR, null);
+                }
+            });
         } catch (ProtectedEntityException e) {
             throw new ForbiddenException();
         } catch (EntityNotFoundException e) {
@@ -96,22 +105,5 @@ public class CplaceMovieRepository implements MovieRepository {
     private Movie toMovie(Page moviePage) {
         Page director = moviePage.get(ImdbAppTypes.MOVIE.MOVIE_DIRECTOR);
         return new Movie(moviePage.getId(), moviePage.getNameNotEmpty(), director != null ? director.getId() : null);
-    }
-
-
-    private void updateMovie(Movie movie) {
-        Page movieEntity = Page.SCHEMA.getWritableCopyNotNull(movie.getId());
-        movieEntity._name().set(movie.getName());
-        movieEntity.persist();
-    }
-
-    private void updateMovieDirector(Movie movie) {
-        Page movieEntity = Page.SCHEMA.getEntityNotNull(movie.getId());
-        if (movie.getDirectorId() != null) {
-            Page directorEntity = Page.SCHEMA.getWritableCopyNotNull(movie.getId());
-            movieEntity.set(ImdbAppTypes.MOVIE.MOVIE_DIRECTOR, directorEntity);
-        } else {
-            movieEntity.set(ImdbAppTypes.MOVIE.MOVIE_DIRECTOR, null);
-        }
     }
 }
