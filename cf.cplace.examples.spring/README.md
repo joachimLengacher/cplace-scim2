@@ -257,7 +257,7 @@ cplace properties affect the controllers final URL:
 
 * `cplace.context` (defaults to `/intern/tricia` on local development systems and to `/` on production systems)
 * `cplace.isMultiTenancy` (defaults to `false` on local development systems)
-* `cplace.webEndpointPathElement` (defaults to `cplace-api`, used to distinguish the Spring controller resources form the
+* `cplace.webEndpointPathElement` (defaults to `api`, used to distinguish the Spring controller resources form the
   traditional cplace handler resources)
   
 On a single tenant system, your controller's full paths typically look as follows:
@@ -266,7 +266,7 @@ On a single tenant system, your controller's full paths typically look as follow
 
 which in our example translates to
 
-`http://localhost:8083/intern/tricia/cplace-api/cf.cplace.examples.spring`
+`http://localhost:8083/intern/tricia/api/cf.cplace.examples.spring`
 
 on a local development system and if none of the above properties deviates from its default value.
 
@@ -276,7 +276,7 @@ On a multi tenant system, the path also contains the tenant ID:
 
 which in our example translates to
 
-`http://localhost:8083/intern/tricia/tricia/cplace-api/cf.cplace.examples.spring`
+`http://localhost:8083/intern/tricia/tricia/api/cf.cplace.examples.spring`
 
 on a local development system and if none of the above properties deviates from its default value and `tricia` being
 the default tenant ID on local development systems.
@@ -297,7 +297,7 @@ public class MovieResource {
 ```
 Assuming the defaults above, a concrete movie resource might be available at
 
-`http://localhost:8083/intern/tricia/tricia/cplace-api/cf.cplace.examples.spring/movie/hhbu393jjtqpbd2grvsgx61um`
+`http://localhost:8083/intern/tricia/tricia/api/cf.cplace.examples.spring/movie/hhbu393jjtqpbd2grvsgx61um`
 
 in this case.
 
