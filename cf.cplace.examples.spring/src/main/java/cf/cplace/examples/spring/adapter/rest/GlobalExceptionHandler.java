@@ -1,14 +1,14 @@
 package cf.cplace.examples.spring.adapter.rest;
 
+import cf.cplace.examples.spring.domain.port.ForbiddenException;
+import cf.cplace.examples.spring.domain.port.NotFoundException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-
-import cf.cplace.examples.spring.domain.port.ForbiddenException;
-import cf.cplace.examples.spring.domain.port.NotFoundException;
 
 @ControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE) // prefer this over the default cplace exception handler
@@ -38,6 +38,8 @@ public class GlobalExceptionHandler {
 
     private ResponseEntity<Error> createErrorResponse(String message, HttpStatus httpStatus) {
         Error error = new Error(message);
-        return new ResponseEntity<>(error, httpStatus);
+        return ResponseEntity.status(httpStatus)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(error);
     }
 }
