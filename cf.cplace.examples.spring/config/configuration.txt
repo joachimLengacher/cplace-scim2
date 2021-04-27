@@ -1,8 +1,0 @@
-store = hsqldb
-store.database = tricia_test
-store.user = sa
-store.password = 
-
-httpPort = 8083
-
-context = /intern/tricia/
