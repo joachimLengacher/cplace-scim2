@@ -10,8 +10,11 @@ import cf.cplace.platform.assets.search.Filters;
 import cf.cplace.platform.assets.search.Search;
 import cf.cplace.platform.services.exceptions.EntityNotFoundException;
 import cf.cplace.platform.services.exceptions.ProtectedEntityException;
+import com.google.common.base.Preconditions;
+import edu.umd.cs.findbugs.annotations.ReturnValuesAreNonnullByDefault;
 
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Collection;
@@ -19,12 +22,17 @@ import java.util.Date;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+/**
+ * A {@link DirectorRepository}  implementation that adapts {@link Director} instances to cplace entities.
+ */
+@ParametersAreNonnullByDefault
+@ReturnValuesAreNonnullByDefault
 public class CplaceDirectorRepository implements DirectorRepository {
 
     @Override
-    public String create(String name, LocalDate birthday) {
+    public String create(String name, @Nullable LocalDate birthday) {
         try {
-            PageSpace space = PageSpace.SCHEMA.getEntity(PageSpace.ROOT_SPACE_ID);
+            PageSpace space = Preconditions.checkNotNull(PageSpace.SCHEMA.getEntity(PageSpace.ROOT_SPACE_ID));
             Page page = Page.SCHEMA.createPageAndPersist(space, ImdbAppTypes.DIRECTOR.TYPE, p -> {
                 p._name().set(name);
                 if (birthday != null) {
@@ -52,7 +60,7 @@ public class CplaceDirectorRepository implements DirectorRepository {
     @Override
     public Collection<Director> findAll() {
         try {
-            PageSpace space = PageSpace.SCHEMA.getEntity(PageSpace.ROOT_SPACE_ID);
+            PageSpace space = Preconditions.checkNotNull(PageSpace.SCHEMA.getEntity(PageSpace.ROOT_SPACE_ID));
             Search search = new Search();
             search.add(Filters.space(space));
             search.add(Filters.type(ImdbAppTypes.DIRECTOR.TYPE));
@@ -69,6 +77,7 @@ public class CplaceDirectorRepository implements DirectorRepository {
         return new Director(directorPage.getId(), directorPage.getNameNotEmpty(),  toLocalDate(directorPage.get(ImdbAppTypes.DIRECTOR.BIRTHDAY)));
     }
 
+    @Nullable
     private Date toDate(@Nullable LocalDate localDate) {
         if (localDate == null) {
             return null;
@@ -78,6 +87,7 @@ public class CplaceDirectorRepository implements DirectorRepository {
                 .toInstant());
     }
 
+    @Nullable
     private LocalDate toLocalDate(@Nullable Date date) {
         if (date == null) {
             return null;

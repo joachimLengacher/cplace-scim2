@@ -1,10 +1,13 @@
 package cf.cplace.examples.spring.adapter.rest;
 
+/**
+ * The JSON representation of a movie.
+ */
 public final class MovieRepresentation {
 
-    private String id;
-    private String name;
-    private String directorId;
+    private final String id;
+    private final String name;
+    private final String directorId;
 
     public MovieRepresentation(String id, String name, String directorId) {
         this.id = id;

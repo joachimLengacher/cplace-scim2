@@ -4,11 +4,14 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.time.LocalDate;
 
+/**
+ * The JSON representation of a movie director.
+ */
 public final class DirectorRepresentation {
 
     private final String id;
     private final String name;
-    public final LocalDate birthday; // TODO: show how to format
+    public final LocalDate birthday;
 
     public DirectorRepresentation(String id, String name, LocalDate birthday) {
         this.id = id;

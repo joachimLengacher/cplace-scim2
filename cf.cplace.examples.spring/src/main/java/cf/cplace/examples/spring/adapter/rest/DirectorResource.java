@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+/**
+ * A resource to manage movie directors.
+ */
 @RestController
 @CplaceRequestMapping(path = "/cf.cplace.examples.spring")
 public class DirectorResource {

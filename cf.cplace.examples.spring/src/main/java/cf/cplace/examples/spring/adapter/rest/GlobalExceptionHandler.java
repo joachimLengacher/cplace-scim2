@@ -10,6 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+/**
+ * A global exception handler for all Spring controllers.
+ */
 @ControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE) // prefer this over the default cplace exception handler
 public class GlobalExceptionHandler {

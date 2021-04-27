@@ -12,6 +12,7 @@ import cf.cplace.platform.orm.PersistentEntity;
 import cf.cplace.platform.services.exceptions.EntityNotFoundException;
 import cf.cplace.platform.services.exceptions.ProtectedEntityException;
 import com.google.common.base.Preconditions;
+import edu.umd.cs.findbugs.annotations.ReturnValuesAreNonnullByDefault;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -19,11 +20,12 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+/**
+ * A {@link MovieRepository}  implementation that adapts {@link Movie} instances to cplace entities.
+ */
 @ParametersAreNonnullByDefault
+@ReturnValuesAreNonnullByDefault
 public class CplaceMovieRepository implements MovieRepository {
-
-    public CplaceMovieRepository() {
-    }
 
     @Override
     public String create(String name) {

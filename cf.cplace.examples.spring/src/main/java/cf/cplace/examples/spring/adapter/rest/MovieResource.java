@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+/**
+ * A resource to manage movies.
+ */
 @RestController
 @CplaceRequestMapping(path = "/cf.cplace.examples.spring")
 public class MovieResource {

@@ -12,6 +12,9 @@ import cf.cplace.platform.assets.custom.def.TypeDef;
 import cf.cplace.platform.assets.custom.typeConstraints.factory.TypeConstraintFactories;
 import cf.cplace.platform.internationalization.Message;
 
+/**
+ * The cplace custom entities type to which the domain objects are mapped.
+ */
 public class ImdbAppTypes {
 
     @FixedAppTypes.Fixed(orderIndex = 400)

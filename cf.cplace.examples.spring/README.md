@@ -79,7 +79,7 @@ instances in cplace.
 #### The `usecase` package
 The plugin specific business rules are contained within this package. In our example plugin we have use cases such as
 [create movie](src/main/java/cf/cplace/examples/spring/usecase/CreateMovieUseCase.java) or
-[add director to movie](src/main/java/cf/cplace/examples/spring/usecase/DirectorUseCase.java)
+[add director to movie](src/main/java/cf/cplace/examples/spring/usecase/AssignDirectorUseCase.java)
 
 #### The `adapter` package
 
@@ -90,7 +90,24 @@ which adapts incoming REST calls to the plugin's business logic and a
 
 ##### The `rest` package
 
-A REST resource that is implemented as a Spring `@RestController`.
+A REST resource that is implemented as a Spring `@RestController`. In this example we have decided not to return the domain
+object directly but to return representations of them. This required some extra mapping code, but it has advantages:
+
+* the objects returned by the REST could be adapted to what the UI really needs. E.g. we could decid to transmit only
+  a subset of the original model object's attributes. Or to combine them in a certain way.
+* it allows adding instructions on how to render the data in JSON without having to "pollute" our domain objects with that. 
+
+```Java
+public final class DirectorRepresentation {
+
+    //...
+
+    @JsonFormat(pattern="yyyy-MM-dd") // how to render the date in JSON
+    public LocalDate getBirthday() {
+        return birthday;
+    }
+}
+```
 
 ##### The `cplace` package
 

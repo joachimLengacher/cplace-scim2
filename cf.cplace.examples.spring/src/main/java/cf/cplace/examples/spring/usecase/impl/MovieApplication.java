@@ -7,9 +7,13 @@ import cf.cplace.examples.spring.usecase.AssignDirectorUseCase;
 import cf.cplace.examples.spring.usecase.CreateMovieUseCase;
 import cf.cplace.examples.spring.usecase.FindMovieUseCase;
 import com.google.common.base.Preconditions;
+import edu.umd.cs.findbugs.annotations.ReturnValuesAreNonnullByDefault;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
 
+@ParametersAreNonnullByDefault
+@ReturnValuesAreNonnullByDefault
 public class MovieApplication implements FindMovieUseCase, CreateMovieUseCase, AssignDirectorUseCase {
 
     private final MovieRepository movieRepository;

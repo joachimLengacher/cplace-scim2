@@ -12,6 +12,9 @@ import cf.cplace.examples.spring.usecase.impl.MovieApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * This plugin's central Spring configuration that is picked up by cplace at start-up.
+ */
 @Configuration
 public class PluginSpringConfiguration {
 

@@ -1,5 +1,6 @@
 package cf.cplace.examples.spring.adapter.rest;
 
+
 public final class CreateMovieRequest {
     private String name;
 
