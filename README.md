@@ -6,7 +6,7 @@ Team 	| Componentization (https://base.cplace.io/pages/wx08u1o3mta5viug6f56dxrxo
 Project| Product Repo
 Responsibility |	FULL
 Developed by 	|collaboration Factory AG
-Description | This repository contains version constraints for dependencies used by the cplace product.
+Description | A collection of examples and best practices for cplace development.
 
 # cplace-examples
 
