@@ -131,7 +131,7 @@ During start-up, cplace will collect the class named `<plugin package>.assembly.
 if it is present. If it is not present, the plugin will simply not be considered for cplace Spring context, and
 will just be interpreted as a traditional cplace plugin. The class should be annotated with Spring's `@Configuration` annotation
 and can contain anything that a typical Spring configuration can contain, most importantly the bean definitions, of course.
-In this example we have decided to keep our domain objects POJOs (see [The Clean Architecture](#the-clean-plugin-architecture)
+In this example we have decided to keep our core application logic class independent of the framework (see [The Clean Architecture](#the-clean-plugin-architecture)
 above). That's why they all need to be instantiated explicitly in the Spring configuration. Of course dependency injection
 works in Spring configuration files:
 
@@ -153,13 +153,14 @@ public class PluginSpringConfiguration {
 }
 ```
 
-However, if you want to have it more convenient and don't mind so much having Spring annotations in your model objects,
+However, if you want to have it more convenient and don't mind so much having Spring annotations in your core plugin classes,
 the Spring component scan can also be used. Make sure that you apply it to your plugin only though!
 
 For example, you could have all classes in your plugin scanned for potential Spring components. In that case the
 `PluginSpringConfiguration`'s only purpose is to carry the annotation. Apart from that it's empty.
 
 ```Java
+@Configuration
 @ComponentScan("cf.cplace.examples")
 public class PluginSpringConfiguration {
 }
@@ -198,16 +199,16 @@ public class MovieResource {
 }
 ```
 
-A middle course could be to keep the model objects POJOs and to instantiate them manually as shown in this example while
-applying the component scan to packages that contain Spring code anyway, such as our REST resource, which is a Spring
-`@RestController` (note that a `@RestController` also is a `@Controller`).
+A middle course could be to keep the core application and model classes free os Spring and to instantiate them manually
+as shown in this example while applying the component scan to packages that contain Spring code anyway, such as our
+REST resource, which is a Spring `@RestController` (note that a `@RestController` also is a `@Controller`).
 
 ```Java
 // component scan for a sub-package only
 @ComponentScan("cf.cplace.examples.adapter.rest")
 public class PluginSpringConfiguration {
     
-    // this is needed as MovieApplication is a POJO
+    // this is needed as MovieApplication is free of Spring annotations
     @Bean
     public MovieApplication movieApplication(MovieRepository movieRepository) {
         return new MovieApplication(movieRepository);
@@ -366,8 +367,8 @@ public class GlobalRestExceptionHandler extends ResponseEntityExceptionHandler {
 
 This has the following consequences for your plugin's exception handler:
 
-* it doesn't have to provide a fallback handler for `Exception` unless you want to do something else than the default
-  handler in this case
+* it shouldn't provide exception handlers that are already defined in cplace' own exception handler, unless they
+  need to be overruled for some reason by your plugin. This includes the fallback handler for the `Exception` class.
 * your `@ControllerAdvice` must have higher precedence than the default cplace one
   (see `@Order(Ordered.HIGHEST_PRECEDENCE)` above)
 
