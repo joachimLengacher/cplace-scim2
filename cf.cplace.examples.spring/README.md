@@ -410,7 +410,7 @@ allows us to test the plugin's core functionality with plain JUnit tests. Each c
 mocked either with either POJOs or with Mockito, as shown for example in
 [MovieApplicationTest](src/test/java/cf/cplace/examples/spring/usecase/impl/MovieApplicationTest.java).
 
-The cplace adapter on the other hand can also be tested independent of our plugin. Testing the adapter through our
+The cplace adapter on the other hand can also be tested independently of our plugin. Testing the adapter through our
 domain interfaces documents and verifies the assumptions we rely on when it comes to cplace functionality. An
 example of such a test can be found in
 [CplaceMovieRepositoryTest](src/test/java/cf/cplace/examples/spring/adapter/cplace/CplaceMovieRepositoryTest.java).
