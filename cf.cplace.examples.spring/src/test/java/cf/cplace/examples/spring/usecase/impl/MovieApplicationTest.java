@@ -22,9 +22,6 @@ public class MovieApplicationTest {
     @Mock
     private MovieRepository movieRepository;
 
-    @Mock
-    private Movie movie;
-
     private MovieApplication movieApplication;
 
     @Before
@@ -47,21 +44,24 @@ public class MovieApplicationTest {
 
     @Test
     public void testFindByName() {
+        Movie movie = new Movie("70ugelde04214tqjrn3cduqus", "Fitzcarraldo", null);
         when(movieRepository.findByName("Fitzcarraldo")).thenReturn(Collections.singletonList(movie));
         assertThat(movieApplication.findByName("Fitzcarraldo"), contains(movie));
     }
 
     @Test
     public void testFindAll() {
+        Movie movie = new Movie("70ugelde04214tqjrn3cduqus", "Fitzcarraldo", null);
         when(movieRepository.findAll()).thenReturn(Collections.singletonList(movie));
         assertThat(movieApplication.findAll(), contains(movie));
     }
 
     @Test
     public void testAddDirectorToMovie() {
+        Movie movie = new Movie("70ugelde04214tqjrn3cduqus", "Fitzcarraldo", null);
         when(movieRepository.findById("70ugelde04214tqjrn3cduqus")).thenReturn(movie);
         movieApplication.addDirectorToMovie("83ukql2hqmrzuk8u5w3n89ik5", "70ugelde04214tqjrn3cduqus");
-        verify(movie).setDirectorId("83ukql2hqmrzuk8u5w3n89ik5");
+        assertThat(movie.getDirectorId(), is("83ukql2hqmrzuk8u5w3n89ik5"));
         verify(movieRepository).save(movie);
     }
 }
