@@ -11,7 +11,7 @@ import java.time.LocalDate;
 public class Director {
     private final String id;
     private String name;
-    public LocalDate birthday;
+    private LocalDate birthday;
 
     public Director(String id, String name, @Nullable LocalDate birthday) {
         this.id = Preconditions.checkNotNull(id);

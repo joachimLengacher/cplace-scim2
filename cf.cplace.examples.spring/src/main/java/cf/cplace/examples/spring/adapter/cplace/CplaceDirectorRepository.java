@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 /**
- * A {@link DirectorRepository}  implementation that adapts {@link Director} instances to cplace entities.
+ * A {@link DirectorRepository} implementation that adapts {@link Director} instances to cplace entities.
  */
 @ParametersAreNonnullByDefault
 public class CplaceDirectorRepository implements DirectorRepository {

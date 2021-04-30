@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 /**
- * A {@link MovieRepository}  implementation that adapts {@link Movie} instances to cplace entities.
+ * A {@link MovieRepository} implementation that adapts {@link Movie} instances to cplace entities.
  */
 @ParametersAreNonnullByDefault
 public class CplaceMovieRepository implements MovieRepository {

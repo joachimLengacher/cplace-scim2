@@ -13,7 +13,7 @@ import cf.cplace.platform.assets.custom.typeConstraints.factory.TypeConstraintFa
 import cf.cplace.platform.internationalization.Message;
 
 /**
- * The cplace custom entities type to which the domain objects are mapped.
+ * The cplace custom entities types to which the domain objects are mapped.
  */
 public class ImdbAppTypes {
 
