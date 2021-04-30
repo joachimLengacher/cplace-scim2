@@ -112,7 +112,11 @@ public final class DirectorRepresentation {
 ##### The `cplace` package
 
 A repository implementation that implements the plugin's [ports](#the-port-package) and allows to store the plugin's
-POJO model objects in cplace.
+POJO model objects in cplace. This code should be pretty familiar to experienced cplace developers. One fact is
+worth mentioning though: the familiar cplace exceptions that could be thrown when reading and writing cplace entities such as
+the `EntityNotFoundException` and the `ProtectedEntityException` don't need to be dealt with here. Thanks to the global
+cplace exception handler for controllers, we don't need to worry about any of the `CpaceException`s here.
+See [Error Handling](#error-handling) for more details in this.
 
 #### The `assembly` package
 
@@ -336,16 +340,16 @@ Spring controllers as we have done in this example plugin:
 @ControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE) // prefer this over the default cplace exception handler
 public class GlobalExceptionHandler {
-    
-    @ExceptionHandler(NotFoundException.class)
-    protected ResponseEntity<Error> entityNotFoundHandler(NotFoundException notFoundException) {
-        return createErrorResponse(notFoundException.getMessage(), HttpStatus.NOT_FOUND);
+
+    @ExceptionHandler(MyCustomPluginException.class) // an exception that is defined withing the plugin
+    protected ResponseEntity<Error> handle(MyCustomPluginException notFoundException) {
+        return createErrorResponse(notFoundException.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); // choose appropriate HTTP response code here
     }
 }
 ```
 
-Note that cplace itself already has a `@ControllerAdvice` that serves as a fallback and handles all exceptions that
-might not have been handled so far: 
+Note that cplace itself already has a `@ControllerAdvice` that serves as a fallback and handles all cplace core exceptions
+as well as exceptions that might not have been handled so far as well: 
 
 ```Java
 @ControllerAdvice
@@ -362,6 +366,14 @@ public class GlobalRestExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<ApiError> handleGeneralExceptions(Exception ex) {
       return apiError(INTERNAL_SERVER_ERROR, ex, "Unexpected internal server error");
     }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    @ResponseBody
+    protected ResponseEntity<ApiError> handleNotFound(EntityNotFoundException ex) {
+        return apiError(NOT_FOUND, ex, ex.getMessage());
+    }
+    
+    // others...
 }
 ```
 

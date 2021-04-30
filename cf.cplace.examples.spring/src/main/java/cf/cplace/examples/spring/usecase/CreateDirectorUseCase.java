@@ -1,7 +1,6 @@
 package cf.cplace.examples.spring.usecase;
 
 import cf.cplace.examples.spring.domain.model.Director;
-import cf.cplace.examples.spring.domain.port.ForbiddenException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -18,7 +17,6 @@ public interface CreateDirectorUseCase {
      * @param name the director's name
      * @param birthday the director's birthday
      * @return the new instance' unique ID
-     * @throws ForbiddenException if creating the instance is not allowed for the current user
      */
     @Nonnull
     String create(String name, LocalDate birthday);

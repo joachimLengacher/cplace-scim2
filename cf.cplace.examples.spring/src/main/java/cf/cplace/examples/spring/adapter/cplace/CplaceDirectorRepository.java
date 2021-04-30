@@ -2,15 +2,10 @@ package cf.cplace.examples.spring.adapter.cplace;
 
 import cf.cplace.examples.spring.domain.model.Director;
 import cf.cplace.examples.spring.domain.port.DirectorRepository;
-import cf.cplace.examples.spring.domain.port.ForbiddenException;
-import cf.cplace.examples.spring.domain.port.NotFoundException;
 import cf.cplace.platform.assets.file.Page;
 import cf.cplace.platform.assets.file.PageSpace;
 import cf.cplace.platform.assets.search.Filters;
 import cf.cplace.platform.assets.search.Search;
-import cf.cplace.platform.services.exceptions.EntityNotFoundException;
-import cf.cplace.platform.services.exceptions.ProtectedEntityException;
-import com.google.common.base.Preconditions;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -31,48 +26,33 @@ public class CplaceDirectorRepository implements DirectorRepository {
     @Override
     @Nonnull
     public String create(String name, @Nullable LocalDate birthday) {
-        try {
-            PageSpace space = PageSpace.SCHEMA.getEntityNotNull(PageSpace.ROOT_SPACE_ID);
-            Page page = Page.SCHEMA.createPageAndPersist(space, ImdbAppTypes.DIRECTOR.TYPE, p -> {
-                p._name().set(name);
-                if (birthday != null) {
-                    p.set(ImdbAppTypes.DIRECTOR.BIRTHDAY, toDate(birthday));
-                }
-            });
-            return page.getId();
-        } catch (ProtectedEntityException e) {
-            throw new ForbiddenException();
-        }
+        PageSpace space = PageSpace.SCHEMA.getEntityNotNull(PageSpace.ROOT_SPACE_ID);
+        Page page = Page.SCHEMA.createPageAndPersist(space, ImdbAppTypes.DIRECTOR.TYPE, p -> {
+            p._name().set(name);
+            if (birthday != null) {
+                p.set(ImdbAppTypes.DIRECTOR.BIRTHDAY, toDate(birthday));
+            }
+        });
+        return page.getId();
     }
 
     @Override
     @Nonnull
     public Director findById(String id) {
-        try {
-            Page directorPage = Page.SCHEMA.getEntityNotNull(id);
-            return toDirector(directorPage);
-        } catch (ProtectedEntityException e) {
-            throw new ForbiddenException();
-        } catch (EntityNotFoundException e) {
-            throw  new NotFoundException(id);
-        }
+        Page directorPage = Page.SCHEMA.getEntityNotNull(id);
+        return toDirector(directorPage);
     }
 
     @Override
     @Nonnull
     public Collection<Director> findAll() {
-        try {
-            PageSpace space = PageSpace.SCHEMA.getEntityNotNull(PageSpace.ROOT_SPACE_ID);
-            Search search = new Search();
-            search.add(Filters.space(space));
-            search.add(Filters.type(ImdbAppTypes.DIRECTOR.TYPE));
+        PageSpace space = PageSpace.SCHEMA.getEntityNotNull(PageSpace.ROOT_SPACE_ID);
+        Search search = new Search();
+        search.add(Filters.space(space));
+        search.add(Filters.type(ImdbAppTypes.DIRECTOR.TYPE));
 
-            return StreamSupport.stream(search.findAllPages().spliterator(), false)
-                    .map(this::toDirector).collect(Collectors.toList());
-
-        } catch (ProtectedEntityException e) {
-            throw new ForbiddenException();
-        }
+        return StreamSupport.stream(search.findAllPages().spliterator(), false)
+                .map(this::toDirector).collect(Collectors.toList());
     }
 
     @Nonnull
