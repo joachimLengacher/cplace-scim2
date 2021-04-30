@@ -29,7 +29,7 @@ public class CplaceMovieRepository implements MovieRepository {
     @Nonnull
     public String create(String name) {
         try {
-            PageSpace space = Preconditions.checkNotNull(PageSpace.SCHEMA.getEntity(PageSpace.ROOT_SPACE_ID));
+            PageSpace space = PageSpace.SCHEMA.getEntityNotNull(PageSpace.ROOT_SPACE_ID);
             Page page = Page.SCHEMA.createPageAndPersist(space, ImdbAppTypes.MOVIE.TYPE, p -> p._name().set(name));
             return page.getId();
         } catch (ProtectedEntityException e) {
@@ -74,7 +74,7 @@ public class CplaceMovieRepository implements MovieRepository {
     @Nonnull
     public Collection<Movie> findAll() {
         try {
-            PageSpace space = Preconditions.checkNotNull(PageSpace.SCHEMA.getEntity(PageSpace.ROOT_SPACE_ID));
+            PageSpace space = PageSpace.SCHEMA.getEntityNotNull(PageSpace.ROOT_SPACE_ID);
             Search search = new Search();
             search.add(Filters.space(space));
             search.add(Filters.type(ImdbAppTypes.MOVIE.TYPE));
@@ -91,7 +91,7 @@ public class CplaceMovieRepository implements MovieRepository {
     @Nonnull
     public Collection<Movie> findByName(String name) {
         try {
-            PageSpace space = Preconditions.checkNotNull(PageSpace.SCHEMA.getEntity(PageSpace.ROOT_SPACE_ID));
+            PageSpace space = PageSpace.SCHEMA.getEntityNotNull(PageSpace.ROOT_SPACE_ID);
             Search search = new Search()
                     .add(Filters.space(space))
                     .add(Filters.type(ImdbAppTypes.MOVIE.TYPE))

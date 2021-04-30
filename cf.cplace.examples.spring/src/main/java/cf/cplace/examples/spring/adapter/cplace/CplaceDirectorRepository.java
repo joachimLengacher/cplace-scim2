@@ -32,7 +32,7 @@ public class CplaceDirectorRepository implements DirectorRepository {
     @Nonnull
     public String create(String name, @Nullable LocalDate birthday) {
         try {
-            PageSpace space = Preconditions.checkNotNull(PageSpace.SCHEMA.getEntity(PageSpace.ROOT_SPACE_ID));
+            PageSpace space = PageSpace.SCHEMA.getEntityNotNull(PageSpace.ROOT_SPACE_ID);
             Page page = Page.SCHEMA.createPageAndPersist(space, ImdbAppTypes.DIRECTOR.TYPE, p -> {
                 p._name().set(name);
                 if (birthday != null) {
@@ -62,7 +62,7 @@ public class CplaceDirectorRepository implements DirectorRepository {
     @Nonnull
     public Collection<Director> findAll() {
         try {
-            PageSpace space = Preconditions.checkNotNull(PageSpace.SCHEMA.getEntity(PageSpace.ROOT_SPACE_ID));
+            PageSpace space = PageSpace.SCHEMA.getEntityNotNull(PageSpace.ROOT_SPACE_ID);
             Search search = new Search();
             search.add(Filters.space(space));
             search.add(Filters.type(ImdbAppTypes.DIRECTOR.TYPE));
