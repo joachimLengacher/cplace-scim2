@@ -1,13 +1,12 @@
 package cf.cplace.examples.spring.domain.model;
 
 import com.google.common.base.Preconditions;
-import edu.umd.cs.findbugs.annotations.ReturnValuesAreNonnullByDefault;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
-@ReturnValuesAreNonnullByDefault
 public class Movie {
     private final String id;
     private final String name;
@@ -19,10 +18,12 @@ public class Movie {
         this.directorId = directorId;
     }
 
+    @Nonnull
     public String getId() {
         return id;
     }
 
+    @Nonnull
     public String getName() {
         return name;
     }

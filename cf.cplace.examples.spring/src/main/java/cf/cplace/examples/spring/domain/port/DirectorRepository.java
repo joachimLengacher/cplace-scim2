@@ -1,7 +1,6 @@
 package cf.cplace.examples.spring.domain.port;
 
 import cf.cplace.examples.spring.domain.model.Director;
-import edu.umd.cs.findbugs.annotations.ReturnValuesAreNonnullByDefault;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -13,7 +12,6 @@ import java.util.Collection;
  * Handles persistence for {@link Director} instances.
  */
 @ParametersAreNonnullByDefault
-@ReturnValuesAreNonnullByDefault
 public interface DirectorRepository {
 
     /**
@@ -23,6 +21,7 @@ public interface DirectorRepository {
      * @return the new instance' unique ID
      * @throws ForbiddenException if creating the instance is not allowed for the current user
      */
+    @Nonnull
     String create(String name, @Nullable LocalDate birthday);
 
     /**
@@ -32,6 +31,7 @@ public interface DirectorRepository {
      * @throws NotFoundException if an entity with that ID doesn't exist
      * @throws ForbiddenException if reading the instance is not allowed for the current user
      */
+    @Nonnull
     Director findById(String id);
 
     /**
@@ -39,5 +39,6 @@ public interface DirectorRepository {
      * @return a collection of all directors. May be an empty collection.
      * @throws ForbiddenException if reading the instances is not allowed for the current user
      */
+    @Nonnull
     Collection<Director> findAll();
 }

@@ -1,8 +1,8 @@
 package cf.cplace.examples.spring.domain.port;
 
 import cf.cplace.examples.spring.domain.model.Movie;
-import edu.umd.cs.findbugs.annotations.ReturnValuesAreNonnullByDefault;
 
+import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
 
@@ -10,7 +10,6 @@ import java.util.Collection;
  * Handles persistence for {@link Movie} instances.
  */
 @ParametersAreNonnullByDefault
-@ReturnValuesAreNonnullByDefault
 public interface MovieRepository {
 
     /**
@@ -19,6 +18,7 @@ public interface MovieRepository {
      * @return the new instance' unique ID
      * @throws ForbiddenException if creating the instance is not allowed for the current user
      */
+    @Nonnull
     String create(String name);
 
     /**
@@ -35,6 +35,7 @@ public interface MovieRepository {
      * @throws NotFoundException if an entity with that ID doesn't exist
      * @throws ForbiddenException if reading the instance is not allowed for the current user
      */
+    @Nonnull
     Movie findById(String id);
 
     /**
@@ -43,6 +44,7 @@ public interface MovieRepository {
      * @return a collection of movies with the same name. May be an empty collection
      * @throws ForbiddenException if reading the instances is not allowed for the current user
      */
+    @Nonnull
     Collection<Movie> findByName(String name);
 
     /**
@@ -50,5 +52,6 @@ public interface MovieRepository {
      * @return a collection of all movies. May be an empty collection.
      * @throws ForbiddenException if reading the instances is not allowed for the current user
      */
+    @Nonnull
     Collection<Movie> findAll();
 }

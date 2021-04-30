@@ -3,8 +3,8 @@ package cf.cplace.examples.spring.usecase;
 import cf.cplace.examples.spring.domain.model.Movie;
 import cf.cplace.examples.spring.domain.port.ForbiddenException;
 import cf.cplace.examples.spring.domain.port.NotFoundException;
-import edu.umd.cs.findbugs.annotations.ReturnValuesAreNonnullByDefault;
 
+import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
 
@@ -12,7 +12,6 @@ import java.util.Collection;
  * A collection of scenarios to find movies. They make up the "Find movie" use case.
  */
 @ParametersAreNonnullByDefault
-@ReturnValuesAreNonnullByDefault
 public interface FindMovieUseCase {
 
     /**
@@ -22,6 +21,7 @@ public interface FindMovieUseCase {
      * @throws NotFoundException if an entity with that ID doesn't exist
      * @throws ForbiddenException if reading the instance is not allowed for the current user
      */
+    @Nonnull
     Movie findById(String id);
 
     /**
@@ -30,6 +30,7 @@ public interface FindMovieUseCase {
      * @return a collection of movies with the same name. May be an empty collection
      * @throws ForbiddenException if reading the instances is not allowed for the current user
      */
+    @Nonnull
     Collection<Movie> findByName(String name);
 
     /**
@@ -37,5 +38,6 @@ public interface FindMovieUseCase {
      * @return a collection of all movies. May be an empty collection.
      * @throws ForbiddenException if reading the instances is not allowed for the current user
      */
+    @Nonnull
     Collection<Movie> findAll();
 }

@@ -2,8 +2,8 @@ package cf.cplace.examples.spring.usecase;
 
 import cf.cplace.examples.spring.domain.model.Director;
 import cf.cplace.examples.spring.domain.port.ForbiddenException;
-import edu.umd.cs.findbugs.annotations.ReturnValuesAreNonnullByDefault;
 
+import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.time.LocalDate;
 
@@ -11,7 +11,6 @@ import java.time.LocalDate;
  * A collection of scenarios to create movie directors. They make up the "Create director" use case.
  */
 @ParametersAreNonnullByDefault
-@ReturnValuesAreNonnullByDefault
 public interface CreateDirectorUseCase {
 
     /**
@@ -21,5 +20,6 @@ public interface CreateDirectorUseCase {
      * @return the new instance' unique ID
      * @throws ForbiddenException if creating the instance is not allowed for the current user
      */
+    @Nonnull
     String create(String name, LocalDate birthday);
 }

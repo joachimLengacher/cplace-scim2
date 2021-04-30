@@ -1,14 +1,13 @@
 package cf.cplace.examples.spring.domain.model;
 
 import com.google.common.base.Preconditions;
-import edu.umd.cs.findbugs.annotations.ReturnValuesAreNonnullByDefault;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.time.LocalDate;
 
 @ParametersAreNonnullByDefault
-@ReturnValuesAreNonnullByDefault
 public class Director {
     private final String id;
     private String name;
@@ -20,11 +19,12 @@ public class Director {
         this.birthday =  birthday;
     }
 
-
+    @Nonnull
     public String getId() {
         return id;
     }
 
+    @Nonnull
     public String getName() {
         return name;
     }

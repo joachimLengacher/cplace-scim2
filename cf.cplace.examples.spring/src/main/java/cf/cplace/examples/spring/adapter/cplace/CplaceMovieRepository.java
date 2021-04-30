@@ -12,7 +12,6 @@ import cf.cplace.platform.orm.PersistentEntity;
 import cf.cplace.platform.services.exceptions.EntityNotFoundException;
 import cf.cplace.platform.services.exceptions.ProtectedEntityException;
 import com.google.common.base.Preconditions;
-import edu.umd.cs.findbugs.annotations.ReturnValuesAreNonnullByDefault;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -24,10 +23,10 @@ import java.util.stream.StreamSupport;
  * A {@link MovieRepository}  implementation that adapts {@link Movie} instances to cplace entities.
  */
 @ParametersAreNonnullByDefault
-@ReturnValuesAreNonnullByDefault
 public class CplaceMovieRepository implements MovieRepository {
 
     @Override
+    @Nonnull
     public String create(String name) {
         try {
             PageSpace space = Preconditions.checkNotNull(PageSpace.SCHEMA.getEntity(PageSpace.ROOT_SPACE_ID));
@@ -59,6 +58,7 @@ public class CplaceMovieRepository implements MovieRepository {
     }
 
     @Override
+    @Nonnull
     public Movie findById(String id) {
         try {
             Page moviePage = Page.SCHEMA.getEntityNotNull(id);
@@ -71,6 +71,7 @@ public class CplaceMovieRepository implements MovieRepository {
     }
 
     @Override
+    @Nonnull
     public Collection<Movie> findAll() {
         try {
             PageSpace space = Preconditions.checkNotNull(PageSpace.SCHEMA.getEntity(PageSpace.ROOT_SPACE_ID));
@@ -87,6 +88,7 @@ public class CplaceMovieRepository implements MovieRepository {
     }
 
     @Override
+    @Nonnull
     public Collection<Movie> findByName(String name) {
         try {
             PageSpace space = Preconditions.checkNotNull(PageSpace.SCHEMA.getEntity(PageSpace.ROOT_SPACE_ID));

@@ -11,8 +11,8 @@ import cf.cplace.platform.assets.search.Search;
 import cf.cplace.platform.services.exceptions.EntityNotFoundException;
 import cf.cplace.platform.services.exceptions.ProtectedEntityException;
 import com.google.common.base.Preconditions;
-import edu.umd.cs.findbugs.annotations.ReturnValuesAreNonnullByDefault;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.time.LocalDate;
@@ -26,10 +26,10 @@ import java.util.stream.StreamSupport;
  * A {@link DirectorRepository}  implementation that adapts {@link Director} instances to cplace entities.
  */
 @ParametersAreNonnullByDefault
-@ReturnValuesAreNonnullByDefault
 public class CplaceDirectorRepository implements DirectorRepository {
 
     @Override
+    @Nonnull
     public String create(String name, @Nullable LocalDate birthday) {
         try {
             PageSpace space = Preconditions.checkNotNull(PageSpace.SCHEMA.getEntity(PageSpace.ROOT_SPACE_ID));
@@ -46,6 +46,7 @@ public class CplaceDirectorRepository implements DirectorRepository {
     }
 
     @Override
+    @Nonnull
     public Director findById(String id) {
         try {
             Page directorPage = Page.SCHEMA.getEntityNotNull(id);
@@ -58,6 +59,7 @@ public class CplaceDirectorRepository implements DirectorRepository {
     }
 
     @Override
+    @Nonnull
     public Collection<Director> findAll() {
         try {
             PageSpace space = Preconditions.checkNotNull(PageSpace.SCHEMA.getEntity(PageSpace.ROOT_SPACE_ID));
@@ -73,6 +75,7 @@ public class CplaceDirectorRepository implements DirectorRepository {
         }
     }
 
+    @Nonnull
     private Director toDirector(Page directorPage) {
         return new Director(directorPage.getId(), directorPage.getNameNotEmpty(),  toLocalDate(directorPage.get(ImdbAppTypes.DIRECTOR.BIRTHDAY)));
     }
