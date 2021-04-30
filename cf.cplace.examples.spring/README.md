@@ -367,10 +367,10 @@ public class GlobalRestExceptionHandler extends ResponseEntityExceptionHandler {
 
 This has the following consequences for your plugin's exception handler:
 
-* it shouldn't provide exception handlers that are already defined in cplace' own exception handler, unless they
-  need to be overruled for some reason by your plugin. This includes the fallback handler for the `Exception` class.
-* your `@ControllerAdvice` must have higher precedence than the default cplace one
-  (see `@Order(Ordered.HIGHEST_PRECEDENCE)` above)
+* *it should only handle exceptions that are defined in the plugin*, otherwise it will interfere with the exception handlers
+  of other plugins or with the global cplace exception handler.
+* your `@ControllerAdvice` must have higher precedence than the default cplace exception handler otherwise the cplace
+  exception handler for the `Exception` class will handle your exceptions. (see `@Order(Ordered.HIGHEST_PRECEDENCE)` above)
 
 #### Security
 
