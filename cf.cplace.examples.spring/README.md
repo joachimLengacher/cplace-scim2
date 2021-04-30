@@ -253,7 +253,7 @@ attribute must have your plugins qualified name as first element:
 
 ```Java
 @RestController
-@CplaceRequestMapping(path = "/cf.cplace.examples.spring")
+@CplaceRequestMapping(path = "/cf.cplace.examples.spring/movie")
 public class MovieResource {
     //...
 }
@@ -303,10 +303,10 @@ Beyond this constraint, your Spring controller can now freely define URL mapping
 you could do:
 
 ```Java
-@CplaceRequestMapping(path = "/cf.cplace.examples.spring")
+@CplaceRequestMapping(path = "/cf.cplace.examples.spring/movie")
 public class MovieResource {
     
-    @GetMapping(value = {"/movie/{id}"}, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = {"/{id}"}, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public MovieRepresentation findById(@PathVariable("id") String id) {
         // ...

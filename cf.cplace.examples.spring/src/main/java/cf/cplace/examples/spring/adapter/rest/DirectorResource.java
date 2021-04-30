@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  * A resource to manage movie directors.
  */
 @RestController
-@CplaceRequestMapping(path = "/cf.cplace.examples.spring")
+@CplaceRequestMapping(path = "/cf.cplace.examples.spring/director")
 public class DirectorResource {
 
     private final FindDirectorUseCase findDirectorUseCase;
@@ -28,19 +28,19 @@ public class DirectorResource {
         this.createDirectorUseCase = Preconditions.checkNotNull(createDirectorUseCase);
     }
 
-    @GetMapping(value = {"/director/{id}"}, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = {"/{id}"}, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public DirectorRepresentation findById(@PathVariable("id") String id) {
         return toDirectorRepresentation(findDirectorUseCase.findById(id));
     }
 
-    @GetMapping(value = {"/director"}, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public Collection<DirectorRepresentation> findAll() {
         return toDirectorRepresentations(findDirectorUseCase.findAll());
     }
 
-    @PostMapping(value = {"/director"}, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public String create(@RequestBody CreateDirectorRequest createDirectorRequest) {
         return createDirectorUseCase.create(createDirectorRequest.getName(), createDirectorRequest.getBirthday());
@@ -51,7 +51,7 @@ public class DirectorResource {
     }
 
     private DirectorRepresentation toDirectorRepresentation(Director director) {
-        return new DirectorRepresentation(director.getId(), director.getName(), director.birthday);
+        return new DirectorRepresentation(director.getId(), director.getName(), director.getBirthday());
     }
 
 }

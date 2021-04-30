@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  * A resource to manage movies.
  */
 @RestController
-@CplaceRequestMapping(path = "/cf.cplace.examples.spring")
+@CplaceRequestMapping(path = "/cf.cplace.examples.spring/movie")
 public class MovieResource {
 
     private final FindMovieUseCase findMovieUseCase;
@@ -34,13 +34,13 @@ public class MovieResource {
         this.assignDirectorUseCase = Preconditions.checkNotNull(assignDirectorUseCase);
     }
 
-    @GetMapping(value = {"/movie/{id}"}, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = {"/{id}"}, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public MovieRepresentation findById(@PathVariable("id") String id) {
         return toMovieRepresentation(findMovieUseCase.findById(id));
     }
 
-    @GetMapping(value = {"/movie"}, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public Collection<MovieRepresentation> find(@RequestParam(required = false) String name) {
         if (name != null) {
@@ -49,13 +49,13 @@ public class MovieResource {
         return toMovieRepresentations(findMovieUseCase.findAll());
     }
 
-    @PostMapping(value = {"/movie"}, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public String create(@RequestBody CreateMovieRequest createMovieRequest) {
         return createMovieUseCase.create(createMovieRequest.getName());
     }
 
-    @PostMapping(value = {"/movie/{movieId}/director"}, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = {"/{movieId}/director"}, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public void addDirector(@PathVariable("movieId") String movieId, @RequestBody AddDirectorRequest addDirectorRequest) {
         assignDirectorUseCase.addDirectorToMovie(addDirectorRequest.getDirectorId(), movieId);
