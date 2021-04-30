@@ -17,7 +17,7 @@ import cf.cplace.platform.internationalization.Message;
  */
 public class ImdbAppTypes {
 
-    @FixedAppTypes.Fixed(orderIndex = 400)
+    @FixedAppTypes.Fixed()
     public static class MOVIE {
 
         public static final Message name_singular = new Message() {
@@ -36,10 +36,10 @@ public class ImdbAppTypes {
                 .withInternalAttributeNamePrefix("cf.cplace.examples.spring");
     }
 
-    @FixedAppTypes.Fixed(orderIndex = 400)
+    @FixedAppTypes.Fixed()
     public static class DIRECTOR {
 
-        public static final SingleDateAttributeDef BIRTHDAY = AttributeDef.build("birthday", null, TypeConstraintFactories.dateConstraint(Multiplicities.maximalOne));
+        public static final SingleDateAttributeDef BIRTHDAY = AttributeDef.build("cf.cplace.examples.spring.director.birthday", null, TypeConstraintFactories.dateConstraint(Multiplicities.maximalOne));
 
         public static final Message name_singular = new Message() {
         };
