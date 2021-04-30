@@ -72,7 +72,7 @@ class that represents a core entity of our plugin.
 ##### The `port` package
 This package contains the interfaces that allow to "plug in" concrete adapters that provide functionality for the
 domain model. In this example, we have created a [MovieRepository](src/main/java/cf/cplace/examples/spring/domain/port/MovieRepository.java)
-that allows to plugin in the [CplaceMovieRepository](src/main/java/cf/cplace/examples/spring/adapter/cplace/CplaceMovieRepository.java)
+that allows to plug in the [CplaceMovieRepository](src/main/java/cf/cplace/examples/spring/adapter/cplace/CplaceMovieRepository.java)
 which in turn provides the concrete implementation to store [Movie](src/main/java/cf/cplace/examples/spring/domain/model/Movie.java)
 instances in cplace.
 
@@ -93,7 +93,7 @@ which adapts incoming REST calls to the plugin's business logic and a
 A REST resource that is implemented as a Spring `@RestController`. In this example we have decided not to return the domain
 object directly but to return representations of them. This required some extra mapping code, but it has advantages:
 
-* the objects returned by the REST could be adapted to what the UI really needs. E.g. we could decid to transmit only
+* the objects returned by the REST could be adapted to what the UI really needs. E.g. we could decide to transmit only
   a subset of the original model object's attributes. Or to combine them in a certain way.
 * it allows adding instructions on how to render the data in JSON without having to "pollute" our domain objects with that. 
 
@@ -127,7 +127,7 @@ This example plugin's Spring configuration can be found [here](src/main/java/cf/
 
 ---
 
-During start-up, cplace will collect the class named `<plugin root folder>/assembly/PluginSpringConfiguration` of each plugin
+During start-up, cplace will collect the class named `<plugin package>.assembly.PluginSpringConfiguration` of each plugin
 if it is present. If it is not present, the plugin will simply not be considered for cplace Spring context, and
 will just be interpreted as a traditional cplace plugin. The class should be annotated with Spring's `@Configuration` annotation
 and can contain anything that a typical Spring configuration can contain, most importantly the bean definitions, of course.
@@ -165,7 +165,7 @@ public class PluginSpringConfiguration {
 }
 ```
 
-Of course, for your components to be picked up and instantiated by Spring in this case, they need to annotated accordingly.
+Of course, for your components to be picked up and instantiated by Spring in this case, they need to be annotated accordingly.
 Any of Spring's well known stereotypes work here (`@Component`, `@Service`, `@Repository`, `@Controller`).
 
 ```Java
@@ -248,7 +248,7 @@ This example plugin's Spring controller can be found [here](src/main/java/cf/cpl
 In cplace, Spring controllers can be defined just like standard Spring controllers, including `@RequestMapping`,
 `@PathVariable`, `@RequestParam`, `@ResponseStatus` and many more things. There is only speciality to cplace, however.
 *cplace Spring controller classes must be annotated with `@CplaceRequestMapping` and the annotations `path`
-attribute must be set to your plugins qualified name:
+attribute must have your plugins qualified name as first element:
 
 ```Java
 @RestController
@@ -274,7 +274,7 @@ cplace properties affect the controllers final URL:
 
 * `cplace.context` (defaults to `/intern/tricia` on local development systems and to `/` on production systems)
 * `cplace.isMultiTenancy` (defaults to `false` on local development systems)
-* `cplace.webEndpointPathElement` (defaults to `api`, used to distinguish the Spring controller resources form the
+* `cplace.webEndpointPathElement` (defaults to `cplace-api`, used to distinguish the Spring controller resources form the
   traditional cplace handler resources)
   
 On a single tenant system, your controller's full paths typically look as follows:
@@ -283,7 +283,7 @@ On a single tenant system, your controller's full paths typically look as follow
 
 which in our example translates to
 
-`http://localhost:8083/intern/tricia/api/cf.cplace.examples.spring`
+`http://localhost:8083/intern/tricia/cplace-api/cf.cplace.examples.spring`
 
 on a local development system and if none of the above properties deviates from its default value.
 
@@ -293,7 +293,7 @@ On a multi tenant system, the path also contains the tenant ID:
 
 which in our example translates to
 
-`http://localhost:8083/intern/tricia/tricia/api/cf.cplace.examples.spring`
+`http://localhost:8083/intern/tricia/tricia/cplace-api/cf.cplace.examples.spring`
 
 on a local development system and if none of the above properties deviates from its default value and `tricia` being
 the default tenant ID on local development systems.
@@ -314,7 +314,7 @@ public class MovieResource {
 ```
 Assuming the defaults above, a concrete movie resource might be available at
 
-`http://localhost:8083/intern/tricia/tricia/api/cf.cplace.examples.spring/movie/hhbu393jjtqpbd2grvsgx61um`
+`http://localhost:8083/intern/tricia/tricia/cplace-api/cf.cplace.examples.spring/movie/hhbu393jjtqpbd2grvsgx61um`
 
 in this case.
 
@@ -387,7 +387,7 @@ access them per default. Access has to be enabled in one of the following ways:
 * by enabling Basic Authentication in the cplace platform through setting the property `cplace.security.basic.enabled=true`.
   It authenticates against the cplace user management. *Basic Authentication is not recommended on production systems, however!*
 
-On local development systems a Basic Authentication provider is enabled per default.
+When running cplace in test mode a Basic Authentication provider is enabled per default.
 
 Custom authentication is added the easiest by registering your custom implementation of a
 `org.springframework.security.authentication.AuthenticationProvider` as a Spring bean. Also have a look at
@@ -399,7 +399,7 @@ If the `AuthentocationProvider`'s `authenticate` method returns an `Authenticati
 of type `cf.cplace.platform.internal.api.security.CplaceUserDetails`, then cplace will automatically log in this
 user with the cplace session (see `cf.cplace.platform.application.rest.SessionAndRequestLocalInterceptor` for details).
 This will 'hook' the current thread into the cplace authorization system. So any attempt to read or write cplace
-entities from within Spring controllers will now be checked against the cplace authentication system.
+entities from within Spring controllers will now be checked against the cplace authorization system.
 
 ### Testing
 
