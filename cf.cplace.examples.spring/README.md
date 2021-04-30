@@ -118,6 +118,9 @@ the `EntityNotFoundException` and the `ProtectedEntityException` don't need to b
 cplace exception handler for controllers, we don't need to worry about any of the `CpaceException`s here.
 See [Error Handling](#error-handling) for more details in this.
 
+Also note that for simplicity the example uses the cplace root workspace which will of course not work in a productive
+environment. So in your project you most likely will need a repository implementation for workspaces too.
+
 #### The `assembly` package
 
 The `assembly` package contains the Spring infrastructure code that defines how all the plugin's components are
