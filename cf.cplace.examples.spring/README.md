@@ -471,10 +471,19 @@ Custom authentication is added the easiest by registering your custom implementa
 `org.springframework.security.authentication.AuthenticationProvider` as a Spring bean. Also have a look at
 `cf.cplace.platform.application.security.BasicAuthenticationProvider` to get some pointers on how to do this.
 
+If your authentication method also requires a Spring security filter - for example to read a request header and create an
+authentication token prior to invoking the `AuthenticationProvider` - a bean of type `CplaceSecurityFilter` can be
+registered with the Spring context in your plugin. Any bean of type `CplaceSecurityFilter` will be picked up by
+cplace at start-up and added to the Spring controller's security filter chain.
+
+Please also refer to the [cplace-authentication](the https://github.com/collaborationFactory/cplace-authentication)
+GitHub repository for authentication methods that might be available already. There you will also find examples on how
+to implement a new authentication method.
+
 ##### Authorization
 
 If the `AuthentocationProvider`'s `authenticate` method returns an `Authentication` instance which in turn has a principle
-of type `cf.cplace.platform.internal.api.security.CplaceUserDetails`, then cplace will automatically log in this
+of type `cf.cplace.platform.api.security.CplaceUserDetails`, then cplace will automatically log in this
 user with the cplace session (see `cf.cplace.platform.application.rest.SessionAndRequestLocalInterceptor` for details).
 This will 'hook' the current thread into the cplace authorization system. So any attempt to read or write cplace
 entities from within Spring controllers will now be checked against the successfully logged-in user by the cplace authorization system.
