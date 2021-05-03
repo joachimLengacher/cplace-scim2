@@ -1,0 +1,616 @@
+version: 2.1
+
+orbs:
+  jq: circleci/jq@2.2.0
+
+executors:
+  executor_1:
+    machine:
+      image: ubuntu-1604:202004-01
+    resource_class: medium
+    working_directory: ~/collaborationFactory/cplace-examples
+    shell: /bin/bash --login
+    environment:
+      JAVA_TOOL_OPTIONS: "-XX:+HeapDumpOnOutOfMemoryError -XX:+ExitOnOutOfMemoryError -XX:HeapDumpPath=/tmp/circleci-artifacts"
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2 -Dorg.gradle.caching=false -Xmx3g -Xms1g -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/circleci-artifacts"
+
+commands:
+  restore_gradle_cache:
+    description: "Builds the checksum file for restoring and saving the gradle cache and restores the gradle cache."
+    steps:
+      - run:
+          name: "Prepare Checksum for Gradle Dependencies"
+          command: find . -maxdepth 2 -type f -name "build.gradle" -exec shasum {} + | tee gradle-build-files.checksum
+      - restore_cache:
+          name: "Restore Gradle Cache"
+          keys:
+            - gradle-cache-v3-{{ checksum "gradle-build-files.checksum" }}
+            - gradle-cache-v3-
+  save_gradle_cache:
+    description: "Saves the gradle cache. Requires the checksum file created in the restore_gradle_cache command"
+    steps:
+      - save_cache:
+          name: "Save Gradle Dependencies Cache"
+          key: gradle-cache-v3-{{ checksum "gradle-build-files.checksum" }}
+          paths:
+            - "~/.gradle"
+  checkout_and_handle_source_cache:
+    description: "Checks out the sources and restores the sources and gradle caches. Also saves the git cache after checkout."
+    steps:
+      - restore_cache:
+          name: "Restore Repository Cache"
+          keys:
+            - source-v1-{{ .Branch }}-{{ .Revision }}
+            - source-v1-{{ .Branch }}-
+            - source-v1-
+      - checkout
+      - save_cache:
+          name: "Save Repository Cache"
+          key: source-v1-{{ .Branch }}-{{ .Revision }}
+          paths:
+            - ".git"
+  restore_parent_repos_cache:
+    description: "Restores the parent repos cache"
+    steps:
+      - restore_cache:
+          name: "Restore parent repos cache"
+          keys:
+            - parents-v1-{{ checksum "parent-repos.json" }}-{{ .Branch }}-{{ .Revision }}
+            - parents-v1-{{ checksum "parent-repos.json" }}-{{ .Branch }}-
+            - parents-v1-{{ checksum "parent-repos.json" }}-
+  save_parent_repos_cache:
+    description: "Save the currently checked out other repositories before freezing and building. If you add more dependencies to parent-repos.json also add them here."
+    steps:
+      - save_cache:
+          name: "Save Parent Repos Cache"
+          key: parents-v1-{{ checksum "parent-repos.json" }}-{{ .Branch }}-{{ .Revision }}
+          paths:
+            - "~/collaborationFactory/main/.git"
+  git_reset_parent_repos:
+    description: "Resets git for all repos listed in the parent repos. Uses jq tp parse the parent-repos.json. Parent repositories are automatically detected and need not to be added here."
+    steps:
+      - run:
+          name: "Run git reset for all Parent Repos"
+          command: |
+            for key in $(jq -r 'keys[]' parent-repos.json); do
+              echo "resetting $key"
+              if [ -d "~/collaborationFactory/$key" ]; then cd ~/collaborationFactory/$key && git reset --hard; fi
+            done
+  git_reset_all:
+    description: "Resets the integration build repo which gets buiild and all its parent repos."
+    steps:
+      - run:
+          name: "Run git reset for the integration repo"
+          command: git reset --hard
+      - git_reset_parent_repos
+  prepare_parent_repos:
+    description: "Clones and updates the parent repos. Uses cplace-cli."
+    steps:
+      - run: echo "clone missing parent repos"; cd ~/collaborationFactory/$CIRCLE_PROJECT_REPONAME && cplace-cli repos --clone --verbose --force
+      - run: echo "updating parent repos"; cd ~/collaborationFactory/$CIRCLE_PROJECT_REPONAME && cplace-cli repos --update --reset-to-remote --verbose --force
+  freeze_parent_repos:
+    description: "Freezes the parent repos"
+    steps:
+      - run:
+          name: "Freeze Parent Repos"
+          command: echo "freezing parent repos"; cd ~/collaborationFactory/$CIRCLE_PROJECT_REPONAME && cplace-cli repos -w --freeze --verbose --force
+  persist_build_workspace:
+    description: "Persists the build workspace. Only include the software zip when uploading to central."
+    parameters:
+      include_zip_in_workspace:
+        type: boolean
+        default: false
+    steps:
+      - when:
+          condition: << parameters.include_zip_in_workspace >>
+          steps:
+            - run:
+                name: "Prepare Workspace"
+                working_directory: ~/collaborationFactory
+                command: |
+                  echo "Preparing the workspace - including the zip."
+                  tar --exclude="*/.circleci"  --exclude="*/.git" --exclude="*/.gitattributes" --exclude="*/.github" --exclude="*/.idea" --exclude="*/build/extLibs" --exclude=".*/build/libs" --exclude="*/build/resources" --exclude="**/build/reports" --exclude="**/build/test-results" --exclude="**/node_modules" --exclude="**/docker" --exclude="**/openapi" -cJf /tmp/workspace.tar.xz .
+      - unless:
+          condition: << parameters.include_zip_in_workspace >>
+          steps:
+            - run:
+                name: "Prepare Workspace"
+                working_directory: ~/collaborationFactory
+                command: |
+                  echo "Preparing the workspace - excluding the zip."
+                  tar --exclude="*/.circleci"  --exclude="*/.git" --exclude="*/.gitattributes" --exclude="*/.github" --exclude="*/.idea" --exclude="**/build/distributions" --exclude="*/build/extLibs" --exclude=".*/build/libs" --exclude="*/build/resources" --exclude="**/build/reports" --exclude="**/build/test-results" --exclude="**/node_modules" --exclude="**/docker" --exclude="**/openapi" -cJf /tmp/workspace.tar.xz .
+      - persist_to_workspace:
+          root: /
+          paths:
+            - tmp/workspace.tar.xz
+  attach_build_workspace:
+    description: "Attaches the workspace which was created by the build job"
+    steps:
+      - attach_workspace:
+          at: /
+      - run:
+          name: "Extract Workspace"
+          working_directory: ~/collaborationFactory
+          command: |
+            pwd
+            tar -xf /tmp/workspace.tar.xz
+  prepare_java:
+    description: "Preparing Java. Only supports JDK 11"
+    parameters:
+      java_version:
+        type: enum
+        enum: [ "V8", "V11" ]
+        default: "V11"
+    steps:
+      - run:
+          name: "Preparing JDK"
+          command: |
+            if [[ "<< parameters.java_version >>" == "V8" ]]; then
+              echo "Since release/5.13 only building with JDK 11 is supported."
+              exit 1
+            elif [[ "<< parameters.java_version >>" == "V11" ]]; then
+              sudo apt update && sudo apt install openjdk-11-jdk
+              sudo update-alternatives --set java /usr/lib/jvm/java-11-openjdk-amd64/bin/java
+              sudo update-alternatives --set javac /usr/lib/jvm/java-11-openjdk-amd64/bin/javac
+              echo "export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64" >> $BASH_ENV
+            else
+              echo "Unknown java version: << parameters.java_version >>"
+              exit 1
+            fi
+  prepare_build_environment:
+    description: "Prepares the build environment and installs java, npm and cplace-asc."
+    steps:
+      - jq/install
+      - prepare_java:
+          java_version: << pipeline.parameters.ENV_JAVA_VERSION >>
+      - run:
+          name: "Prepare npm, cplace-asc and cplace-cli"
+          command: |
+            set -e
+            nvm install 12.17.0 && nvm alias default 12.17.0
+            npm install -g @cplace/asc
+            npm install -g @cplace/cli
+  prepare_e2e_environment:
+    description: "Prepares the e2e environment and adds required folders and cplace-cli"
+    steps:
+      - prepare_build_environment
+      - run:
+          name: "Preparing e2e Environment"
+          command: |
+            set -e
+            mkdir e2eJunitReports e2eScreenshots
+            echo ${CIRCLE_BRANCH////-}
+  build_parent_repos:
+    description: "Builds the Parent Repos"
+    steps:
+      - run:
+          name: "Build Parent Repos"
+          working_directory: ~/collaborationFactory/cplace-examples
+          command: |
+            set -e
+            echo "building the parent repos"
+            settingsFile="settings.gradle"
+            if [[ $DO_UPLOAD ]];
+            then
+                echo "Upload was requested - using settings-dist.gradle..."
+                settingsFile="settings-dist.gradle"
+            fi
+            ./gradlew --continue --stacktrace buildParentReposResources -PnoIncludes=true -c "$settingsFile"
+          no_output_timeout: 10m
+  build_parent_repos_for_feature_branches:
+    description: "Builds the Parent Repos using the checked out code and NOT the pre-compiled java artifacts."
+    steps:
+      - run:
+          name: "Build Parent Repos"
+          working_directory: ~/collaborationFactory/cplace-examples
+          command: |
+            set -e
+            echo "building the parent repos"
+            settingsFile="settings.gradle"
+            if [[ $DO_UPLOAD ]];
+            then
+                echo "Upload was requested - using settings-dist.gradle..."
+                settingsFile="settings-dist.gradle"
+            fi
+            ./gradlew --continue --stacktrace buildParentRepos -PnoIncludes=true -c "$settingsFile"
+          no_output_timeout: 10m
+  build_distribution:
+    description: "Builds the software zip."
+    steps:
+      - run:
+          name: "Build cplace Distribution"
+          command: |
+            set -e
+            echo "building the distribution zip"
+            settingsFile="settings.gradle"
+            if [[ $DO_UPLOAD ]];
+            then
+                echo "Upload was requested - using settings-dist.gradle..."
+                settingsFile="settings-dist.gradle"
+            fi
+            ./gradlew --stacktrace --parallel validateLibraryLicenses generatePluginDescriptor -PnoIncludes=true -c "$settingsFile"
+            ./gradlew --stacktrace --parallel build -x test -PnoIncludes=true -c "$settingsFile"
+          no_output_timeout: 10m
+  build_distribution_for_integration_repos:
+    description: "Builds the software.zip for integration repositories. Use this task to build an integration repository which has no own sources."
+    steps:
+      - run:
+          name: "Build cplace Distribution"
+          command: |
+            set -e
+            echo "building the distribution zip"
+            settingsFile="settings.gradle"
+            if [[ $DO_UPLOAD ]];
+            then
+                echo "Upload was requested - using settings-dist.gradle..."
+                settingsFile="settings-dist.gradle"
+            fi
+            ./gradlew --stacktrace --parallel validateLibraryLicenses build -x test -PnoIncludes=true -c "$settingsFile"
+          no_output_timeout: 10m
+  run_tests:
+    description: "Runs the unit tests and assembles the test results"
+    steps:
+      - run:
+          name: "Running Tests"
+          command: ./gradlew --stacktrace --continue test -PnoIncludes=true
+          no_output_timeout: 10m
+      - run:
+          name: "Assemble Tests"
+          when: always
+          command: ./gradlew --stacktrace assembleTestResults
+          no_output_timeout: 10m
+      - store_artifacts:
+          path: build/reports/allTests/
+          destination: /tmp/circleci-test-results
+      - store_test_results:
+          path: build/reports/allTests/
+  publish_artifacts:
+    description: "Publishes the gradle build artifacts. Will retry two times if artifactory is not responsive with an increasing sleep time."
+    steps:
+      - run:
+          name: "Resilient Publish cplace Artifacts"
+          command: |
+            set -e
+            for i in $(seq 1 3); do
+              [ $i -gt 1 ] && sleep $((i * 5))
+              ./gradlew --stacktrace publish -PignoreRepoDependencies=true -PnoIncludes=true && s=0 && break || s=$?
+            done
+            exit $s
+  upload_to_central:
+    description: "Upload the software zip to central"
+    steps:
+      - run:
+          name: "Upload Distribution Zip-File to Central"
+          command: |
+            ZIP_FILE=./build/distributions/software.zip
+            PARAMETERS_FILE=./build/distributions/uploadParameters.properties
+            PARENT_REPOS=parent-repos.json
+
+            if [[ -f "$ZIP_FILE" && -f "$PARAMETERS_FILE" ]]
+            then
+                while read parameter;
+                do
+                  key=$(echo "$parameter" | cut -d '=' -f1)
+                  value=$(echo "$parameter" | cut -d '=' -f2)
+                  declare $key=$value
+                done < "$PARAMETERS_FILE"
+
+                echo "Upload parameters:"
+                echo " release = $release"
+                echo " build number = $buildnr"
+                echo " build time = $buildtime"
+                echo " branch = $branchdisplay"
+
+                UPLOAD_URL="https://central.collaboration-factory.de/cf/cplace/cfactoryCentral/handler/deployment/upload"
+                ZIP_CHECKSUM=$(sha384sum "$ZIP_FILE" | cut -d " " -f1)
+                if [[ -f "$PARENT_REPOS" ]]
+                then
+                    BUILD_DESCRIPTOR=$(<$PARENT_REPOS)
+                fi
+
+                mkdir -p /tmp/circleci-artifacts
+
+                echo "Uploading zip file"
+                curl -X POST "$UPLOAD_URL" \
+                    -F "release=$release" \
+                    -F "buildnr=$buildnr" \
+                    -F "buildtime=$buildtime" \
+                    -F "branch-display=$branchdisplay" \
+                    -F "reponame=$REPO_NAME" \
+                    -F "username=$USER_NAME" \
+                    -F "password=$PASSWORD" \
+                    -F "buildDescriptor=$BUILD_DESCRIPTOR" \
+                    -F "zipChecksum=$ZIP_CHECKSUM" \
+                    -F "circleBuildUrl=$CIRCLE_BUILD_URL" \
+                    -F upload=@$ZIP_FILE \
+                    -o "/tmp/circleci-artifacts/responseData.txt"
+
+                echo "checksum SHA384(software.zip)=$ZIP_CHECKSUM" > /tmp/circleci-artifacts/zip-checksum.txt
+
+                response=$(cat "/tmp/circleci-artifacts/responseData.txt")
+                if [[ "$response" != *"Successful."* ]];
+                then
+                    echo "Cannot upload zip file."
+                    echo "$response"
+                    exit 1
+                fi
+            else
+                echo "Required distribution files $ZIP_FILE or $PARAMETERS_FILE are missing"
+                exit 1
+            fi
+      - store_artifacts:
+          path: /tmp/circleci-artifacts
+
+parameters:
+  workflow_commit:
+    type: boolean
+    default: true
+  workflow_e2e:
+    type: boolean
+    default: false
+  workflow_e2e_specs:
+    type: string
+    default: "**"
+  workflow_e2e_specFileRetries:
+    type: integer
+    default: 2
+  workflow_e2e_logLevel:
+    type: string
+    default: "error"
+  workflow_e2e_timeout:
+    type: integer
+    default: 30000
+  workflow_create_release_notes:
+    type: boolean
+    default: false
+  # this is used only as config param to enable the cron job and it should NOT be used for manual trigger
+  workflow_cron_create_release_notes:
+    type: boolean
+    default: false
+  # this is used only as config param to enable the cron job and it should NOT be used for manual trigger
+  workflow_cron_build:
+    type: boolean
+    default: false
+  ENV_DO_BUILD:
+    type: string
+    default: ""
+  ENV_DO_UPLOAD:
+    type: string
+    default: ""
+  ENV_USER_NAME:
+    type: string
+    default: ""
+  ENV_PASSWORD:
+    type: string
+    default: ""
+  ENV_REPO_NAME:
+    type: string
+    default: "cplace-examples"
+  ENV_INCLUDE_ONLY_REQUIRED_PLUGINS_FROM_REPO:
+    type: string
+    default: ""
+  ENV_JAVA_VERSION:
+    type: enum
+    enum: [ "V8", "V11" ]
+    default: "V11"
+
+jobs:
+  build:
+    executor: executor_1
+    parallelism: 1
+    environment:
+      DO_BUILD: << pipeline.parameters.ENV_DO_BUILD >>
+      DO_UPLOAD: << pipeline.parameters.ENV_DO_UPLOAD >>
+      USER_NAME: << pipeline.parameters.ENV_USER_NAME >>
+      PASSWORD: << pipeline.parameters.ENV_PASSWORD >>
+      REPO_NAME: << pipeline.parameters.ENV_REPO_NAME >>
+      INCLUDE_ONLY_REQUIRED_PLUGINS_FROM_REPO: << pipeline.parameters.ENV_INCLUDE_ONLY_REQUIRED_PLUGINS_FROM_REPO >>
+    parameters:
+      PUBLISH_SNAPSHOT:
+        type: boolean
+        default: false
+    steps:
+      - checkout_and_handle_source_cache
+      - restore_parent_repos_cache
+      - restore_gradle_cache
+      - prepare_build_environment
+      - git_reset_all
+      - prepare_parent_repos
+      - save_parent_repos_cache
+      - freeze_parent_repos
+      - build_parent_repos
+      # use the build_parent_repos_for_feature_branches instead of the above step when you need to build feature or customer branches or specific commits from other parent repositories
+      # - build_parent_repos_for_feature_branches
+      - build_distribution
+      # use build_distribution_for_integration_repos instead of the above step when you need to build an integration repository that has no sources
+      # - build_distribution_for_integration_repos
+      - run_tests
+      - when:
+          condition: << parameters.PUBLISH_SNAPSHOT >>
+          steps:
+            - publish_artifacts
+      - when:
+          condition: << pipeline.parameters.ENV_DO_UPLOAD >>
+          steps:
+            - upload_to_central
+      - save_gradle_cache
+
+  e2e:
+    machine: true
+    working_directory: ~/collaborationFactory/cplace-examples
+    shell: /bin/bash --login
+    environment:
+      JAVA_TOOL_OPTIONS: "-XX:+HeapDumpOnOutOfMemoryError -XX:+ExitOnOutOfMemoryError -XX:HeapDumpPath=/tmp/circleci-artifacts"
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2 -Dorg.gradle.caching=false -Xmx3g -Xms1g -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/circleci-artifacts"
+    steps:
+      - checkout_and_handle_source_cache
+      - restore_parent_repos_cache
+      - restore_gradle_cache
+      - prepare_build_environment
+      - git_reset_all
+      - prepare_parent_repos
+      - save_parent_repos_cache
+      - freeze_parent_repos
+      - build_parent_repos
+      # use the build_parent_repos_for_feature_branches instead of the above step when you need to build feature or customer branches or specific commits from other parent repositories
+      # - build_parent_repos_for_feature_branches
+      - build_distribution
+      # use build_distribution_for_integration_repos instead of the above step when you need to build an integration repository that has no sources
+      # - build_distribution_for_integration_repos
+      - run:
+          name: "Prepare E2E tests"
+          command: cplace-asc -c --onlypre --verbose
+      - run:
+          name: "Build cplace docker image"
+          command: |
+            cp build/distributions/software.zip ../main/docker/e2e
+            cd ../main/docker/e2e && docker build . -t cplace/${CIRCLE_PROJECT_REPONAME}:${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH//[^a-zA-Z0-9-]/-}-${CIRCLE_BUILD_NUM}-nightly-e2eImage
+      - run:
+          name: "Run cplace docker image"
+          command: docker run -d --name main -p 4083:4083 -e E2ETOKEN=hIF9Z97RZiYm -e BASEURL=http://localhost:4083 -e PORT=4083 cplace/${CIRCLE_PROJECT_REPONAME}:${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH////-}-${CIRCLE_BUILD_NUM}-nightly-e2eImage
+      - run:
+          command: |
+            until $(curl --output /dev/null --silent --head --fail http://localhost:4083); do
+              printf 'waiting for cplace...\n'
+              sleep 5
+            done
+      - run:
+          command: |
+            set -e
+            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+            sudo apt-get clean
+            sudo apt-get update
+            sudo apt-get install dpkg
+            sudo apt-get install lsb-release libappindicator3-1 libgbm1
+            curl -L -o google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+            sudo dpkg -i google-chrome.deb
+            sudo sed -i 's|HERE/chrome"|HERE/chrome" --no-sandbox|g' /opt/google/chrome/google-chrome
+            rm google-chrome.deb
+      - run:
+          name: "Run e2e tests using headless chrome reporting allure"
+          command: |
+            set -e
+            node --version && cplace-cli e2e --browser=chrome --base-url=http://localhost:4083 \
+            --e2eToken=hIF9Z97RZiYm --jUnit --screenshot --headless --allure \
+            --specs '<< pipeline.parameters.workflow_e2e_specs >>' \
+            --specFileRetries << pipeline.parameters.workflow_e2e_specFileRetries >> \
+            --logLevel << pipeline.parameters.workflow_e2e_logLevel >> \
+            --timeout << pipeline.parameters.workflow_e2e_timeout >>
+      - save_gradle_cache
+      - run:
+          name: "Copy E2E results"
+          when: always
+          command: |
+            mkdir -p /tmp/circleci-e2e-results
+
+            cd ~/collaborationFactory/${CIRCLE_PROJECT_REPONAME}
+            zip -r /tmp/circleci-e2e-results/junit-reports.zip e2eJunitReports
+            zip -r /tmp/circleci-e2e-results/e2e-screenshots.zip e2eScreenshots
+            zip -r /tmp/circleci-e2e-results/allure-output.zip allure-output
+
+            mkdir -p /tmp/circleci-e2e-junit
+            cp -r e2eJunitReports /tmp/circleci-e2e-junit
+      - run:
+          name: "Copy cplace logs"
+          when: always
+          command: |
+            docker cp main:/app/data/log /tmp/cplace-logs
+            cd /tmp
+            zip -r /tmp/circleci-e2e-results/cplace-logs.zip cplace-logs
+            rm -rf /tmp/cplace-logs
+            cd -
+      - store_test_results:
+          path:  /tmp/circleci-e2e-junit
+      - store_artifacts:
+          path:  /tmp/circleci-e2e-results
+
+  create-release-notes:
+    docker:
+      - image: cimg/node:12.17
+    parallelism: 1
+    shell: /bin/bash --login
+    steps:
+      - run: sudo npm install -g @cplace/cli showdown
+      - checkout
+      - run: ./.circleci/publish-release-notes.sh << pipeline.parameters.ENV_REPO_NAME >> << pipeline.git.branch >>
+
+workflows:
+  version: 2
+  commit:
+    when:
+      and:
+        - << pipeline.parameters.workflow_commit >>
+        - not:
+            << pipeline.parameters.ENV_DO_UPLOAD >>
+    jobs:
+      - build:
+          name: "build"
+          context: "cplace.jfrog.io"
+          filters:
+            branches:
+              ignore:
+                - /^master$/
+                - /^release\/[5-9]\.1[1-9]+$/
+
+  snapshot:
+    when:
+      and:
+        - << pipeline.parameters.workflow_commit >>
+        - not:
+            << pipeline.parameters.ENV_DO_UPLOAD >>
+    jobs:
+      - build:
+          name: "build-for-publish"
+          context: "cplace.jfrog.io"
+          PUBLISH_SNAPSHOT: true
+          filters:
+            branches:
+              only:
+                - /^master$/
+                - /^release\/[5-9]\.1[1-9]+$/
+
+  upload-to-central:
+    when: << pipeline.parameters.ENV_DO_UPLOAD >>
+    jobs:
+      - build:
+          name: "build-for-upload"
+          context: "cplace.jfrog.io"
+
+  e2e:
+    when: << pipeline.parameters.workflow_e2e >>
+    jobs:
+      - e2e:
+          context: "cplace.jfrog.io"
+
+  create-release-notes:
+    when: << pipeline.parameters.workflow_create_release_notes >>
+    jobs:
+      - create-release-notes
+
+  cron-create-release-notes:
+    when: << pipeline.parameters.workflow_cron_create_release_notes >>
+    triggers:
+      - schedule:
+          # Run every night at 01:12am UTC
+          cron: "12 1 * * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - create-release-notes
+
+  cron-build:
+    when: << pipeline.parameters.workflow_cron_build >>
+    triggers:
+      - schedule:
+          # Run every night at 09:11pm UTC
+          cron: "11 21 * * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - build:
+          name: "cron-build"
+          context: "cplace.jfrog.io"

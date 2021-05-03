@@ -1,0 +1,9 @@
+rootProject.name = 'cplace-examples'
+
+include ':cf.cplace.examples.spring'
+
+if (!hasProperty('noIncludes') || !getProperty('noIncludes')) {
+    includeBuild('../main')
+} else {
+    println "No includes of external gradle projects"
+}
