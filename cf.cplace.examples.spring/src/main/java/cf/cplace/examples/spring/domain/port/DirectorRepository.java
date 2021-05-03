@@ -19,7 +19,6 @@ public interface DirectorRepository {
      * @param name the director's name
      * @param birthday the director's birthday
      * @return the new instance' unique ID
-     * @throws ForbiddenException if creating the instance is not allowed for the current user
      */
     @Nonnull
     String create(String name, @Nullable LocalDate birthday);
@@ -28,8 +27,6 @@ public interface DirectorRepository {
      * Finds a {@link Director} by its ID.
      * @param id the director's unique ID.
      * @return the director
-     * @throws NotFoundException if an entity with that ID doesn't exist
-     * @throws ForbiddenException if reading the instance is not allowed for the current user
      */
     @Nonnull
     Director findById(String id);
@@ -37,7 +34,6 @@ public interface DirectorRepository {
     /**
      * Finds all {@link Director} instances.
      * @return a collection of all directors. May be an empty collection.
-     * @throws ForbiddenException if reading the instances is not allowed for the current user
      */
     @Nonnull
     Collection<Director> findAll();
