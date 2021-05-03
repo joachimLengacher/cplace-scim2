@@ -6,6 +6,7 @@ import cf.cplace.examples.spring.domain.port.DirectorRepository;
 import cf.cplace.examples.spring.domain.port.MovieRepository;
 import cf.cplace.platform.services.exceptions.EntityNotFoundException;
 import cf.cplace.platform.test.util.StartServerRule;
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -91,11 +92,9 @@ public class CplaceMovieRepositoryTest {
     }
 
     private void then_the_movie_should_not_be_found_by_Id(String movieId) {
-        try {
+        Assert.assertThrows(EntityNotFoundException.class, () -> {
             movieRepository.findById(movieId);
-            assertThat(true, is(false));
-        } catch (EntityNotFoundException ignored) {
-        }
+        });
     }
 
     private void then_the_movie_should_be_found_in_all_movies(Movie movie) {
