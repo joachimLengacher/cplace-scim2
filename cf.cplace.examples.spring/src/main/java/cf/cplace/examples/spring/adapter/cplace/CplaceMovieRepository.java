@@ -1,5 +1,6 @@
 package cf.cplace.examples.spring.adapter.cplace;
 
+import cf.cplace.examples.spring.domain.InvalidReferenceException;
 import cf.cplace.examples.spring.domain.model.Movie;
 import cf.cplace.examples.spring.domain.port.MovieRepository;
 import cf.cplace.platform.assets.file.Page;
@@ -7,6 +8,7 @@ import cf.cplace.platform.assets.file.PageSpace;
 import cf.cplace.platform.assets.search.Filters;
 import cf.cplace.platform.assets.search.Search;
 import cf.cplace.platform.orm.PersistentEntity;
+import cf.cplace.platform.services.exceptions.EntityNotFoundException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -34,8 +36,12 @@ public class CplaceMovieRepository implements MovieRepository {
         PersistentEntity.doOnWritableCopyAndPersistIfModified(movieEntity, m-> {
             m._name().set(movie.getName());
             if (movie.getDirectorId() != null) {
-                Page directorEntity = Page.SCHEMA.getEntityNotNull(movie.getDirectorId());
-                m.set(ImdbAppTypes.MOVIE.MOVIE_DIRECTOR, directorEntity);
+                try {
+                    Page directorEntity = Page.SCHEMA.getEntityNotNull(movie.getDirectorId());
+                    m.set(ImdbAppTypes.MOVIE.MOVIE_DIRECTOR, directorEntity);
+                } catch (EntityNotFoundException e) {
+                    throw new InvalidReferenceException(String.format("Unknown director: '%s'", movie.getDirectorId()));
+                }
             } else {
                 m.set(ImdbAppTypes.MOVIE.MOVIE_DIRECTOR, null);
             }

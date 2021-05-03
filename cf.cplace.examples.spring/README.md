@@ -405,9 +405,10 @@ Spring controllers as we have done in this example plugin:
 @Order(Ordered.HIGHEST_PRECEDENCE) // prefer this over the default cplace exception handler
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(MyCustomPluginException.class) // an exception that is defined withing the plugin
-    protected ResponseEntity<Error> handle(MyCustomPluginException notFoundException) {
-        return createErrorResponse(notFoundException.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR); // choose appropriate HTTP response code here
+    @ExceptionHandler(InvalidReferenceException.class)
+    protected ResponseEntity<Error> handle(InvalidReferenceException invalidReferenceException) {
+        log.debug("Invalid reference", invalidReferenceException);
+        return createErrorResponse(invalidReferenceException.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }
 ```
