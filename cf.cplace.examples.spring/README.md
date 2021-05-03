@@ -22,6 +22,7 @@ in cplace developer trainings.
     * [The Plugin Bean](#the-plugin-bean)
  * [Spring Controllers](#spring-controllers)
     * [URL Mappings](#url-mappings)
+    * [Validation](#validation)
     * [Error Handling](#error-handling)
     * [Security](#security)
        * [Authentication](#authentication)
