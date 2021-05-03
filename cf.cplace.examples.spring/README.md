@@ -256,8 +256,8 @@ This example plugin's Spring controller can be found [here](src/main/java/cf/cpl
 
 In cplace, Spring controllers can be defined just like standard Spring controllers, including `@RequestMapping`,
 `@PathVariable`, `@RequestParam`, `@ResponseStatus` and many more things. There is only speciality to cplace, however.
-*cplace Spring controller classes must be annotated with `@CplaceRequestMapping` and the annotations `path`
-attribute must have your plugins qualified name as first element:
+cplace Spring controller classes must be annotated with `@CplaceRequestMapping` and the annotations `path`
+attribute must have your plugin's qualified name as first element:
 
 ```Java
 @RestController
@@ -278,10 +278,10 @@ By using the `@CplaceRequestMapping` the cplace platform will take care of these
 
 #### URL Mappings
 
-As described above, the `path` specified in `@CplaceRequestMapping` is relative to the cplace root context. The following
+As described above, the `path` specified in `@CplaceRequestMapping` is relative to the cplace web endpoint context. The following
 cplace properties affect the controllers final URL:
 
-* `cplace.context` (defaults to `/intern/tricia` on local development systems and to `/` on production systems)
+* `cplace.context` (defaults to `/intern/tricia/` on local development systems and to `/` on production systems)
 * `cplace.isMultiTenancy` (defaults to `false` on local development systems)
 * `cplace.webEndpointPathElement` (defaults to `cplace-api`, used to distinguish the Spring controller resources form the
   traditional cplace handler resources)
@@ -477,7 +477,7 @@ If the `AuthentocationProvider`'s `authenticate` method returns an `Authenticati
 of type `cf.cplace.platform.internal.api.security.CplaceUserDetails`, then cplace will automatically log in this
 user with the cplace session (see `cf.cplace.platform.application.rest.SessionAndRequestLocalInterceptor` for details).
 This will 'hook' the current thread into the cplace authorization system. So any attempt to read or write cplace
-entities from within Spring controllers will now be checked against the cplace authorization system.
+entities from within Spring controllers will now be checked against the successfully logged-in user by the cplace authorization system.
 
 ### Testing
 
