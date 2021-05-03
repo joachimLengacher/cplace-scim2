@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -42,7 +43,7 @@ public class DirectorResource {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public String create(@RequestBody CreateDirectorRequest createDirectorRequest) {
+    public String create(@Valid @RequestBody CreateDirectorRequest createDirectorRequest) {
         return createDirectorUseCase.create(createDirectorRequest.getName(), createDirectorRequest.getBirthday());
     }
 

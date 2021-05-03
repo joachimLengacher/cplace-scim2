@@ -23,12 +23,14 @@ public class DirectorApplication implements CreateDirectorUseCase, FindDirectorU
     @Override
     @Nonnull
     public String create(String name, LocalDate birthday) {
+        Preconditions.checkNotNull(name, "Name is required");
         return directorRepository.create(name, birthday);
     }
 
     @Override
     @Nonnull
     public Director findById(String id) {
+        Preconditions.checkNotNull(id, "ID is required");
         return directorRepository.findById(id);
     }
 

@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -51,7 +52,7 @@ public class MovieResource {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public String create(@RequestBody CreateMovieRequest createMovieRequest) {
+    public String create(@Valid @RequestBody CreateMovieRequest createMovieRequest) {
         return createMovieUseCase.create(createMovieRequest.getName());
     }
 

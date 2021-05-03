@@ -328,6 +328,66 @@ in this case.
 
 Note that all resources are secured by cplace per default. See [Security](#security) for more details on this.
 
+#### Validation
+
+Requests can be validated with standard Spring mechanisms. For example, in the following method the `id` will never
+be `null`. Using the `@PathVariable` annotation like shown guarantees that because its `required` attribute defaults
+to `true`. If the ID is not provided, Spring will automatically refuse to accept the request with an appropriate HTTP code.
+
+```Java
+@GetMapping(value = {"/{id}"}, produces = MediaType.APPLICATION_JSON_VALUE)
+@ResponseStatus(HttpStatus.OK)
+public MovieRepresentation findById(@PathVariable("id") String id) {
+    //...
+}
+```
+
+To validate the request body, Java bean validation can be used. To make use of it, the following dependencies
+have to be added to `build.gradle`:
+
+```Groovy
+    implementation 'javax.validation:validation-api'
+    implementation 'org.hibernate.validator:hibernate-validator'
+```
+
+Now, the `javax.validation` annotations can be used on the classes that represent the request body:
+
+```Java
+public final class CreateMovieRequest {
+    private String name;
+
+    @NotNull(message = "name is required")
+    public String getName() {
+        return name;
+    }
+
+    //...
+}
+```
+
+Now all that is needed to actually validate the request body is an additional `@Valid` annotation on each parameter
+that needs to be validated:
+
+```Java
+@RestController
+@CplaceRequestMapping(path = "/cf.cplace.examples.spring/movie")
+public class MovieResource {
+
+    //...
+
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    public String create(@Valid @RequestBody CreateMovieRequest createMovieRequest) { // use @Valid to validate the request body!
+        return createMovieUseCase.create(createMovieRequest.getName());
+    }
+    
+    // ...
+}
+```
+
+If the validation fails, the method is not even invoked by the Spring framework, and an appropriate HTTP code 400 (BAD REQUEST)
+is returned.
+
 #### Error Handling
 
 ---

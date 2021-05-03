@@ -2,6 +2,7 @@ package cf.cplace.examples.spring.adapter.rest;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 public final class CreateDirectorRequest {
@@ -9,6 +10,7 @@ public final class CreateDirectorRequest {
     private String name;
     private LocalDate birthday;
 
+    @NotNull(message = "name is required")
     public String getName() {
         return name;
     }

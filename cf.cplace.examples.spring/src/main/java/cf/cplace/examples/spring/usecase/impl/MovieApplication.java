@@ -23,6 +23,7 @@ public class MovieApplication implements FindMovieUseCase, CreateMovieUseCase, A
     @Override
     @Nonnull
     public Movie findById(String id) {
+        Preconditions.checkNotNull(id, "ID is required");
         return movieRepository.findById(id);
     }
 
@@ -41,6 +42,7 @@ public class MovieApplication implements FindMovieUseCase, CreateMovieUseCase, A
     @Override
     @Nonnull
     public String create(String name) {
+        Preconditions.checkNotNull(name, "Name is required");
         return movieRepository.create(name);
     }
 
