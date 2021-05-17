@@ -9,13 +9,17 @@ import cf.cplace.examples.spring.domain.port.DirectorRepository;
 import cf.cplace.examples.spring.domain.port.MovieRepository;
 import cf.cplace.examples.spring.usecase.impl.DirectorApplication;
 import cf.cplace.examples.spring.usecase.impl.MovieApplication;
+import cf.cplace.platform.api.spring.ConditionalOnActivatedPlugin;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 /**
  * This plugin's central Spring configuration that is picked up by cplace at start-up.
  */
 @Configuration
+@ConditionalOnActivatedPlugin("cf.cplace.examples.spring")
+@ComponentScan("cf.cplace.examples.spring.adapter.rest")
 public class PluginSpringConfiguration {
 
     @Bean
@@ -36,20 +40,5 @@ public class PluginSpringConfiguration {
     @Bean
     public DirectorApplication directorApplication(DirectorRepository directorRepository) {
         return new DirectorApplication(directorRepository);
-    }
-
-    @Bean
-    public MovieResource movieResource(MovieApplication movieApplication) {
-        return new MovieResource(movieApplication, movieApplication, movieApplication);
-    }
-
-    @Bean
-    public DirectorResource directorResource(DirectorApplication directorApplication) {
-        return new DirectorResource(directorApplication, directorApplication);
-    }
-
-    @Bean
-    public GlobalExceptionHandler globalExceptionHandler() {
-        return new GlobalExceptionHandler();
     }
 }

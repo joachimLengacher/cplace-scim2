@@ -3,6 +3,7 @@
  */
 package cf.cplace.examples.spring;
 
+import cf.cplace.platform.services.MustBeActivated;
 import cf.cplace.platform.services.Plugin;
 
 import javax.annotation.Nonnull;
@@ -11,7 +12,7 @@ import javax.annotation.Nonnull;
  * A simple plugin that demonstrates how the Springframework can be used in cplace plugins.
  */
 @SuppressWarnings("unused")
-public final class SpringPlugin extends Plugin {
+public final class SpringPlugin extends Plugin implements MustBeActivated {
 
     private static final SpringPlugin instance = new SpringPlugin();
 
