@@ -1,5 +1,6 @@
 package cf.cplace.examples.spring.assembly;
 
+import cf.cplace.examples.spring.SpringPlugin;
 import cf.cplace.examples.spring.adapter.cplace.CplaceDirectorRepository;
 import cf.cplace.examples.spring.adapter.cplace.CplaceMovieRepository;
 import cf.cplace.examples.spring.adapter.rest.DirectorResource;
@@ -18,7 +19,7 @@ import org.springframework.context.annotation.Configuration;
  * This plugin's central Spring configuration that is picked up by cplace at start-up.
  */
 @Configuration
-@ConditionalOnActivatedPlugin("cf.cplace.examples.spring")
+@ConditionalOnActivatedPlugin(SpringPlugin.class)
 @ComponentScan("cf.cplace.examples.spring.adapter.rest")
 public class PluginSpringConfiguration {
 
