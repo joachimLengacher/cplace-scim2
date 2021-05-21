@@ -1,4 +1,4 @@
-rootProject.name = 'cplpace-examples'
+rootProject.name = 'cplace-examples'
 
 include ':cf.cplace.examples.spring'
 
