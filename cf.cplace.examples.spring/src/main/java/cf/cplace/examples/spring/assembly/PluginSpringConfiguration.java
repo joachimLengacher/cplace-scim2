@@ -9,6 +9,7 @@ import cf.cplace.examples.spring.domain.port.DirectorRepository;
 import cf.cplace.examples.spring.domain.port.MovieRepository;
 import cf.cplace.examples.spring.usecase.impl.DirectorApplication;
 import cf.cplace.examples.spring.usecase.impl.MovieApplication;
+import cf.cplace.platform.api.spring.Exported;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -38,16 +39,19 @@ public class PluginSpringConfiguration {
         return new DirectorApplication(directorRepository);
     }
 
+    @Exported
     @Bean
     public MovieResource movieResource(MovieApplication movieApplication) {
         return new MovieResource(movieApplication, movieApplication, movieApplication);
     }
 
+    @Exported
     @Bean
     public DirectorResource directorResource(DirectorApplication directorApplication) {
         return new DirectorResource(directorApplication, directorApplication);
     }
 
+    @Exported
     @Bean
     public GlobalExceptionHandler globalExceptionHandler() {
         return new GlobalExceptionHandler();
