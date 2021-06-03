@@ -194,11 +194,6 @@ ext {
         url uri("https://cplace.jfrog.io/artifactory/cplace-cfactory-mockups-board-gantt/")
         credentials this.cplaceCredentials
     }
-    cplaceExamples = {
-        name = "cplaceExamples"
-        url uri("https://cplace.jfrog.io/artifactory/cplace-examples/")
-        credentials this.cplaceCredentials
-    }
     mainRepositories = {
         maven this.cplaceMain
         maven this.cplaceAsposePptExport

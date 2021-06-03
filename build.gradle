@@ -26,14 +26,6 @@ allprojects {
     configurations.all { resolutionStrategy.cacheChangingModulesFor 0, 'seconds' }
     repositories {
         repositories this.mainRepositories
-        repositories {
-            maven this.cplaceExamples
-        }
-    }
-    publishing {
-        repositories {
-            maven this.cplaceExamples
-        }
     }
 }
 
