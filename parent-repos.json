@@ -1,6 +1,6 @@
 {
   "main": {
     "url": "git@github.com:collaborationFactory/cplace.git",
-    "branch": "tmp/poc-parent-child-contexts"
+    "branch": "improvement/PFM-TASK-1843-Set-Application-Context-ID-for-Debugging"
   }
 }
