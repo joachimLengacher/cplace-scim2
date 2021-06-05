@@ -1,0 +1,15 @@
+plugins {
+    id 'java'
+}
+
+group 'cf.cplace.examples'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.springframework.boot:spring-boot-starter-oauth2-client:2.4.5'
+    compile 'org.springframework.boot:spring-boot-starter-web:2.4.5'
+}
