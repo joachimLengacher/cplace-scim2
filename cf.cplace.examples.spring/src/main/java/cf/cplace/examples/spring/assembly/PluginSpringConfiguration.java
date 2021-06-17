@@ -40,19 +40,19 @@ public class PluginSpringConfiguration {
     }
 
     @Exported
-    @Bean("cf.cplace.examples.spring/movieResource")
+    @Bean("cf.cplace.examples.spring.movieResource")
     public MovieResource movieResource(MovieApplication movieApplication) {
         return new MovieResource(movieApplication, movieApplication, movieApplication);
     }
 
     @Exported
-    @Bean("cf.cplace.examples.spring/directorResource")
+    @Bean("cf.cplace.examples.spring.directorResource")
     public DirectorResource directorResource(DirectorApplication directorApplication) {
         return new DirectorResource(directorApplication, directorApplication);
     }
 
     @Exported
-    @Bean("cf.cplace.examples.spring/globalExceptionHandler")
+    @Bean("cf.cplace.examples.spring.globalExceptionHandler")
     public GlobalExceptionHandler globalExceptionHandler() {
         return new GlobalExceptionHandler();
     }
