@@ -22,30 +22,30 @@ and one for this example application that will call Keycloak to get the token th
 
 #### Creating a Client for cplace
 
-* log in to Keycloak using the specified username and password
+* log in to Keycloak at http://localhost:8181/auth/admin using the specified username and password
 * create a new realm called `dev` and use it for the following actions
 * create a new client scope named `example`
-* create a new client named `cplace`
+* create a new client named `cplace` using the 'openid-connect' protocol
 * set the "Access Type" of the client to "confidential"
   
   ![set access type to 'confidential'](img/access_type_confidential.png)
 
 * set "Valid Redirect URIs" to "http://localhost:8083"
-* set "Authorization Enabled" to "ON"  
+* set "Authorization Enabled" to "ON"
+* save the client settings 
 * on the "Client Scopes" tab of the client configuration, add the `example` client scope to the "Default Client Scopes"
   
   ![add the 'cplace' client scope](img/add_client_scope.png)
 
 #### Creating a Client for this Example Application
 
-* log in to Keycloak using the specified username and password
-* create a new realm called `dev` and use it for the following actions
-* create a new client named `example-app`
+* create a new client named `example-app` using the 'openid-connect' protocol
 * set the "Access Type" of the client to "confidential"
 * set "Valid Redirect URIs" to "http://localhost:8083"
 * set "Authorization Enabled" to "ON"
+* save the client settings
 * on the "Client Scopes" tab of the client configuration, add the `example` client scope to the "Default Client Scopes"
-* On the "Mappers" tab select the `Client ID` and map it to the token's `sub` claim:
+* On the "Mappers" tab select the `Client ID` and map it to the token's `sub` claim (don't forget to save!):
 
   ![setting the 'sub' claim](img/setting_the_sub_claim.png)
 
@@ -66,8 +66,9 @@ described above.
 cplace:
   security:
     authentication:
-      opaque-token:
-        enabled: true
+      oauth2:
+        opaque-token:
+          enabled: true
 
 spring:
   security:
