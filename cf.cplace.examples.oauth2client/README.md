@@ -88,10 +88,10 @@ is currently the more common case in cplace projects.
 ### Adding the 'sub' Claim to the cplace User
 
 To make the connection between the Keycloak client, and the actual cplace user that will be used to access data
-in cplace, the token's `sub` claim will be used to identify the cplace user by its LDAP ID.
+in cplace, the token's `sub` claim will be used to identify the cplace user by its LDAP identifier.
 In this example we are relating the technical Keycloak client 'example-app' to the cplace user 'mustermann@test.tricia'.
 So our example application will act as this cplace user.
-To set the LDAP ID on the cplace user, the `SetLdapIdentifierAction` can be used. Change it as displayed below and
+To set the LDAP identifier on the cplace user, the `SetLdapIdentifierAction` can be used. Change it as displayed below and
 copy it into the `admin-scripts` folder of your running cplace instance:
 
 ``` java
@@ -134,4 +134,3 @@ Reply: {"tenantId":"singleTenant","username":"mustermann@test.tricia","cplaceSes
 If authentication using the token generally was successful, but the username is `null`, then the LDAP property of
 the `mustermann@test.tricia` was probably not set correctly as described above. Though cplace generally accepted the
 authentication token, the request won't be authorized to access any cplace data.
-
