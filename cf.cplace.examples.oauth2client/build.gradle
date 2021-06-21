@@ -1,6 +1,4 @@
-plugins {
-    id 'java'
-}
+ext.isCplacePlugin = false
 
 group 'cf.cplace.examples'
 version '1.0-SNAPSHOT'
