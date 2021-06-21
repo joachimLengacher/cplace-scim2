@@ -9,31 +9,49 @@ REST endpoint in cplace.
 
 ### Setting up Keycloak
 
+#### Running Keycloak
+
 Running Keycloak locally is achieved easiest using docker:
 
 ``` shell
-$ docker run --name keycloak -d -p 8080:8080 -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=admin quay.io/keycloak/keycloak
+$ docker run --name keycloak -d -p 8181:8080 -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=admin quay.io/keycloak/keycloak
 ```
+
+Next, we'll need to configure two clients in Keycloak, one for cplace that will call Keycloak to verify the tokens it gets
+and one for this example application that will call Keycloak to get the token that it will use to authenticate with cplace.
+
+#### Creating a Client for cplace
 
 * log in to Keycloak using the specified username and password
 * create a new realm called `dev` and use it for the following actions
-* create a new client scope named `cplace`
+* create a new client scope named `example`
 * create a new client named `cplace`
 * set the "Access Type" of the client to "confidential"
   
   ![set access type to 'confidential'](img/access_type_confidential.png)
-  
-* on the "Client Scopes" tab of the client configuration, add the `cplace` client scope to the "Default Client Scopes"
+
+* set "Valid Redirect URIs" to "http://localhost:8083"
+* set "Authorization Enabled" to "ON"  
+* on the "Client Scopes" tab of the client configuration, add the `example` client scope to the "Default Client Scopes"
   
   ![add the 'cplace' client scope](img/add_client_scope.png)
 
+#### Creating a Client for this Example Application
+
+* log in to Keycloak using the specified username and password
+* create a new realm called `dev` and use it for the following actions
+* create a new client named `example-app`
+* set the "Access Type" of the client to "confidential"
+* set "Valid Redirect URIs" to "http://localhost:8083"
+* set "Authorization Enabled" to "ON"
+* on the "Client Scopes" tab of the client configuration, add the `example` client scope to the "Default Client Scopes"
 * On the "Mappers" tab select the `Client ID` and map it to the token's `sub` claim:
 
   ![setting the 'sub' claim](img/setting_the_sub_claim.png)
-  
+
 * copy the client secret from the client's "Credentials" tab. This value needs to be passed to the application by either
-  setting it in the `application.properties` file or by passing it as a system property.
-* go to the `application.properties` file and verify that the other values are configured correctly. If you have started
+  setting it in this example's `application.properties` file or by passing it as a system property.
+* go to this example's `application.properties` file and verify that the other values are configured correctly. If you have started
   Keycloak on the same port and have named the realm, the client and the client scope as described above, no changes should
   be necessary (besides the client secret).
 
@@ -56,7 +74,7 @@ spring:
     oauth2:
       resourceserver:
         opaque-token:
-          introspection-uri: http://localhost:8080/auth/realms/dev/protocol/openid-connect/token/introspect
+          introspection-uri: http://localhost:8181/auth/realms/dev/protocol/openid-connect/token/introspect
           client-id: cplace
           client-secret: <client secret>
 ```
@@ -70,6 +88,8 @@ is currently the more common case in cplace projects.
 
 To make the connection between the Keycloak client, and the actual cplace user that will be used to access data
 in cplace, the token's `sub` claim will be used to identify the cplace user by its LDAP ID.
+In this example we are relating the technical Keycloak client 'example-app' to the cplace user 'mustermann@test.tricia'.
+So our example application will act as this cplace user.
 To set the LDAP ID on the cplace user, the `SetLdapIdentifierAction` can be used. Change it as displayed below and
 copy it into the `admin-scripts` folder of your running cplace instance:
 
@@ -82,7 +102,7 @@ public class SetLdapIdentifierAction {
         AbstractAction.doForTenant(tenantId, () -> {
             for (String[] data : new String[][]{
                     // { login, ldapIdentifier }
-                    { "mustermann@test.tricia", "cplace" },
+                    { "mustermann@test.tricia", "example-app" },
             }) {
                 String login = data[0];
                 String ldapIdentifier = data[1];
