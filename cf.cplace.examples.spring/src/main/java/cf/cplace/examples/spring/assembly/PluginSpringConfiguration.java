@@ -9,7 +9,7 @@ import cf.cplace.examples.spring.domain.port.DirectorRepository;
 import cf.cplace.examples.spring.domain.port.MovieRepository;
 import cf.cplace.examples.spring.usecase.impl.DirectorApplication;
 import cf.cplace.examples.spring.usecase.impl.MovieApplication;
-import cf.cplace.platform.api.spring.Exported;
+import cf.cplace.platform.api.spring.annotation.Exported;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
