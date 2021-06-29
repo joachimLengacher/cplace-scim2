@@ -1,4 +1,6 @@
 dependencies {
+	implementation 'org.testng:testng:7.1.0'
 	cplacePlugin "${cplace.artifactGroup}:cf.cplace.platform:${cplace.artifactVersion}"
 
+	implementation 'org.springframework:spring-context'
 }
