@@ -1,0 +1,4 @@
+dependencies {
+	cplacePlugin "${cplace.artifactGroup}:cf.cplace.platform:${cplace.artifactVersion}"
+	cplacePlugin project(':cf.cplace.examples.pluginA')
+}

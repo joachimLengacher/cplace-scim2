@@ -2,6 +2,8 @@ rootProject.name = 'cplace-examples'
 
 include ':cf.cplace.examples.spring'
 include 'cf.cplace.examples.oauth2client'
+include 'cf.cplace.examples.pluginA'
+include 'cf.cplace.examples.pluginB'
 
 if (!hasProperty('noIncludes') || !getProperty('noIncludes')) {
     includeBuild('../main')
