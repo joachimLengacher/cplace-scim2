@@ -3,4 +3,6 @@ dependencies {
 	cplacePlugin "${cplace.artifactGroup}:cf.cplace.platform:${cplace.artifactVersion}"
 
 	implementation 'org.springframework:spring-context'
+
+	implementation 'javax.annotation:javax.annotation-api'
 }
