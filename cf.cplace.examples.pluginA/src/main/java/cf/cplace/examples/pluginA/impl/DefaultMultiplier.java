@@ -12,10 +12,6 @@ public class DefaultMultiplier implements Multiplier {
 
     @Override
     public long multiply(int a, int b) {
-        if(!multiTenancy) {
-            return a * b;
-        } else {
-            throw new IllegalStateException("Only possible in single tenant mode");
-        }
+        return a * b;
     }
 }
