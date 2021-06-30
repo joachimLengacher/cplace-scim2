@@ -1,6 +1,6 @@
 {
   "main": {
     "url": "git@github.com:collaborationFactory/cplace.git",
-    "branch": "master"
+    "branch": "improvement/PFM-TASK-1842-Create-separate-Spring-Context-for-Plugins"
   }
 }
