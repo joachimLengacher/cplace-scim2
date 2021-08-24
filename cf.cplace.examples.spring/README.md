@@ -130,6 +130,8 @@ assembled. This is also the place where dependency injection comes into play. Se
 
 ### The Spring Context & Dependency Injection
 
+General information on the topic "Spring in cplace Plugins" can be found in the [cplace Soluation Playbook](https://docs.cplace.io/app-dev/phase-4-implementation/spring-in-plugins/).
+
 ---
 This example plugin's Spring configuration can be found [here](src/main/java/cf/cplace/examples/spring/assembly/PluginSpringConfiguration.java).
 
@@ -223,12 +225,15 @@ public class PluginSpringConfiguration {
     }
     
 //    This is not needed, it will be picked up by the component scan now.
-//    @Bean
+//    @Exported
+//    @Bean("cf.cplace.examples.spring.movieResource")
 //    public MovieResource movieResource(MovieApplication movieApplication) {
 //        return new MovieResource(movieApplication, movieApplication);
 //    }
 }
 ```
+
+Note that in this case the `@Exported` annotation has to be applied to the class `MovieResource` itself (the custom bean name can be omited then). See [Spring Context Isoluation](https://docs.cplace.io/app-dev/phase-4-implementation/spring-in-plugins/#spring-context-isolation) for details.
 
 #### The Plugin Bean
 
@@ -249,14 +254,19 @@ However, doing so may violate the plugin's [Clean Architecture](#the-clean-plugi
 
 ### Spring Controllers
 
+General information on the topic "Spring REST Controllers" can be found in the [cplace Soluation Playbook](https://docs.cplace.io/app-dev/phase-4-implementation/spring-rest-controllers/).
+
 ---
 This example plugin's Spring controller can be found [here](src/main/java/cf/cplace/examples/spring/adapter/rest/MovieResource.java).
 
 ---
 
 In cplace, Spring controllers can be defined just like standard Spring controllers, including `@RequestMapping`,
-`@PathVariable`, `@RequestParam`, `@ResponseStatus` and many more things. There is only speciality to cplace, however.
-cplace Spring controller classes must be annotated with `@CplaceRequestMapping` and the annotations `path`
+`@PathVariable`, `@RequestParam`, `@ResponseStatus` and many more things. There are some specialities to cplace, however:
+
+The controller beans need to be exported in order to be picked up by the cplace platform. This is achieved with the `@Exported` annotation. Either by annotating the bean definition method in the spring configuration class or by annotating the controller class itself in the case of component scan. See [Spring Context Isolation](https://docs.cplace.io/app-dev/phase-4-implementation/spring-in-plugins/#spring-context-isolation) for details on that.
+
+Also, cplace Spring controller classes must be annotated with `@CplaceRequestMapping` and the annotations `path`
 attribute must have your plugin's qualified name as first element:
 
 ```Java
@@ -449,6 +459,8 @@ This has the following consequences for your plugin's exception handler:
 * your `@ControllerAdvice` must have higher precedence than the default cplace exception handler otherwise the cplace
   exception handler for the `Exception` class will handle your exceptions. (see `@Order(Ordered.HIGHEST_PRECEDENCE)` above)
 
+Controller advices need to be [exported](https://docs.cplace.io/app-dev/phase-4-implementation/spring-in-plugins/#spring-context-isolation) in the same way as rest controllers in order to be picked up by the cplace platform.
+
 #### Security
 
 ##### Authentication
@@ -476,7 +488,9 @@ authentication token prior to invoking the `AuthenticationProvider` - a bean of 
 registered with the Spring context in your plugin. Any bean of type `CplaceSecurityFilter` will be picked up by
 cplace at start-up and added to the Spring controller's security filter chain.
 
-Please also refer to the [cplace-authentication](the https://github.com/collaborationFactory/cplace-authentication)
+Note that also `AuthenticationProvider`s and `CplaceSecurityFilter`s need to be [exported](https://docs.cplace.io/app-dev/phase-4-implementation/spring-in-plugins/#spring-context-isolation) in order to be picked up by the cplace platform. 
+
+Please also refer to the [cplace-authentication](https://github.com/collaborationFactory/cplace-authentication)
 GitHub repository for authentication methods that might be available already. There you will also find examples on how
 to implement a new authentication method.
 
