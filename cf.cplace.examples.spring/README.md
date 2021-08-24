@@ -469,12 +469,12 @@ The cplace Spring controllers are secured by [Spring Security](https://docs.spri
 The [Spring Security Architecture](https://spring.io/guides/topicals/spring-security-architecture) topical guide provides
 a good introduction to this.
 
-On production systems, cplace secures all endpoints that are created through Spring controllers and provides no way to
-access them per default. Access has to be enabled in one of the following ways:
+On production systems, cplace secures all endpoints that are created through Spring controllers with [session cookie based authentication]((https://docs.cplace.io/ops/securing-cplace/securing-spring-controller-endpoints/#default-security-for-spring-controller-endpoints)) by default. This authentication method is the same as for cplace handlers and is suited for end points that are meant to be called by the cplace frontend. Other authentication methods have to be enabled explicitly:
 
 * by adding one of the cplace authentication plugins
 * by providing your own authentication provider.
-* by enabling Basic Authentication in the cplace platform through setting the property `cplace.security.basic.enabled=true`.
+* by enabling [Oauth2 token based authentication](https://docs.cplace.io/ops/securing-cplace/securing-spring-controller-endpoints/#securing-spring-controller-endpoints-with-oauth2).
+* by enabling [Basic Authentication](https://docs.cplace.io/ops/securing-cplace/securing-spring-controller-endpoints/#securing-spring-controller-endpoints-with-basic-authentication).
   It authenticates against the cplace user management. *Basic Authentication is not recommended on production systems, however!*
 
 When running cplace in test mode a Basic Authentication provider is enabled per default.
