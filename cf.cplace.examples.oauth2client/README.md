@@ -7,6 +7,9 @@ The example uses [Keycloak](https://www.keycloak.org/) as an authorization serve
 to configure cplace as well as the client application contained in this example to access a Spring controller based
 REST endpoint in cplace.
 
+For more details and options on how to configure cplace for OAuth2 consult
+[Securing Spring Controller Endpoints](https://docs.cplace.io/ops/securing-cplace/securing-spring-controller-endpoints/) 
+
 ### Setting up Keycloak
 
 #### Running Keycloak
@@ -70,7 +73,7 @@ cplace:
         opaque-token:
           enabled: true
           introspection-endpoints:
-            tenant2:
+            singleTenant:
               introspection-uri: http://localhost:8181/auth/realms/dev/protocol/openid-connect/token/introspect
               client-id: cplace
               client-secret: <client secret>
