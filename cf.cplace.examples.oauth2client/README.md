@@ -69,15 +69,12 @@ cplace:
       oauth2:
         opaque-token:
           enabled: true
+          introspection-endpoints:
+            tenant2:
+              introspection-uri: http://localhost:8181/auth/realms/dev/protocol/openid-connect/token/introspect
+              client-id: cplace
+              client-secret: <client secret>
 
-spring:
-  security:
-    oauth2:
-      resourceserver:
-        opaque-token:
-          introspection-uri: http://localhost:8181/auth/realms/dev/protocol/openid-connect/token/introspect
-          client-id: cplace
-          client-secret: <client secret>
 ```
 
 Note that even if Keycloak will issue a JWT instead of a real opaque token, it can still be used for token introspection.
