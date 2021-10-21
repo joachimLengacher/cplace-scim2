@@ -6,17 +6,20 @@ import cf.cplace.examples.spring.adapter.rest.DirectorResource;
 import cf.cplace.examples.spring.adapter.rest.GlobalExceptionHandler;
 import cf.cplace.examples.spring.adapter.rest.MovieResource;
 import cf.cplace.examples.spring.domain.port.DirectorRepository;
+import cf.cplace.examples.spring.domain.port.Messaging;
 import cf.cplace.examples.spring.domain.port.MovieRepository;
 import cf.cplace.examples.spring.usecase.impl.DirectorApplication;
 import cf.cplace.examples.spring.usecase.impl.MovieApplication;
 import cf.cplace.platform.api.spring.annotation.Exported;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 /**
  * This plugin's central Spring configuration that is picked up by cplace at start-up.
  */
 @Configuration
+@Import(KafkaConfiguration.class)
 public class PluginSpringConfiguration {
 
     @Bean
@@ -35,8 +38,8 @@ public class PluginSpringConfiguration {
     }
 
     @Bean
-    public DirectorApplication directorApplication(DirectorRepository directorRepository) {
-        return new DirectorApplication(directorRepository);
+    public DirectorApplication directorApplication(DirectorRepository directorRepository, Messaging messaging) {
+        return new DirectorApplication(directorRepository, messaging);
     }
 
     @Exported
