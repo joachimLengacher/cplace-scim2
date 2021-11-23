@@ -1,6 +1,6 @@
 {
   "main": {
     "url": "git@github.com:collaborationFactory/cplace.git",
-    "branch": "master"
+    "branch": "release/5.18"
   }
 }
