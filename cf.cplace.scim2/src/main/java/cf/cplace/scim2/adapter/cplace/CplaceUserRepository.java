@@ -28,6 +28,17 @@ public class CplaceUserRepository implements UserRepository {
         return toUser(Person.SCHEMA.getEntityNotNull(id));
     }
 
+    @Nonnull
+    @Override
+    public UserResource update(@Nonnull UserResource user) {
+        Preconditions.checkNotNull(user);
+        Person person = Person.SCHEMA.getEntityNotNull(user.getId());
+        person = person.createWritableCopy();
+        mapUserToPerson(user, person);
+        persist(person);
+        return toUser(person);
+    }
+
     private void persist(Person person) {
         try {
             person.persist();

@@ -10,5 +10,8 @@ public interface UserRepository {
     UserResource create(@Nonnull UserResource user);
 
     @Nonnull
+    UserResource update(@Nonnull UserResource user);
+
+    @Nonnull
     UserResource findById(@Nonnull String id);
 }
