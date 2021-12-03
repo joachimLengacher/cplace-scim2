@@ -1,0 +1,19 @@
+# TODO: this should be the default without having to add it to application.yml
+
+scim2:
+#    baseUrl: ${cplace.server.external-base-url}
+    baseUrl: http://localhost:8083
+    resources-package: cf.cplace.platform.endpoint.scim
+    service-provider-config:
+        bulk:
+            supported: false
+        change-password:
+            supported: false
+        etag:
+            supported: false
+        filter:
+            supported: false
+        patch:
+            supported: false
+        sort:
+            supported: false
