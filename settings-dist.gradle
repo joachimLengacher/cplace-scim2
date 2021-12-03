@@ -1,6 +1,6 @@
-rootProject.name = 'cplace-examples'
+rootProject.name = 'cplace-scim2'
 
-include ':cf.cplace.examples.spring'
+include ':cf.cplace.scim2'
 
 if (!hasProperty('noIncludes') || !getProperty('noIncludes')) {
     includeBuild('../main')

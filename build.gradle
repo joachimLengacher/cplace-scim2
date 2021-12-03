@@ -9,7 +9,7 @@ buildscript {
 }
 apply plugin: 'cplace-gradle-plugin'
 
-group = 'cf.cplace.examples'
+group = 'cf.cplace.scim2'
 
 cplace {
     artifactGroup = 'cf.cplace'

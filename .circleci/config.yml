@@ -8,7 +8,7 @@ executors:
     machine:
       image: ubuntu-2004:202010-01
     resource_class: medium
-    working_directory: ~/collaborationFactory/cplace-examples
+    working_directory: ~/collaborationFactory/cplace-scim2
     shell: /bin/bash --login
     environment:
       JAVA_TOOL_OPTIONS: "-XX:+HeapDumpOnOutOfMemoryError -XX:+ExitOnOutOfMemoryError -XX:HeapDumpPath=/tmp/circleci-artifacts"
@@ -183,7 +183,7 @@ commands:
     steps:
       - run:
           name: "Build Parent Repos"
-          working_directory: ~/collaborationFactory/cplace-examples
+          working_directory: ~/collaborationFactory/cplace-scim2
           command: |
             set -e
             echo "building the parent repos"
@@ -200,7 +200,7 @@ commands:
     steps:
       - run:
           name: "Build Parent Repos"
-          working_directory: ~/collaborationFactory/cplace-examples
+          working_directory: ~/collaborationFactory/cplace-scim2
           command: |
             set -e
             echo "building the parent repos"
@@ -391,7 +391,7 @@ parameters:
     default: ""
   ENV_REPO_NAME:
     type: string
-    default: "cplace-examples"
+    default: "cplace-scim2"
   ENV_INCLUDE_ONLY_REQUIRED_PLUGINS_FROM_REPO:
     type: string
     default: ""
@@ -443,7 +443,7 @@ jobs:
 
   e2e:
     executor: executor_1
-    working_directory: ~/collaborationFactory/cplace-examples
+    working_directory: ~/collaborationFactory/cplace-scim2
     shell: /bin/bash --login
     environment:
       JAVA_TOOL_OPTIONS: "-XX:+HeapDumpOnOutOfMemoryError -XX:+ExitOnOutOfMemoryError -XX:HeapDumpPath=/tmp/circleci-artifacts"
