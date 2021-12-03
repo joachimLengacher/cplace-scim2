@@ -22,6 +22,12 @@ public class CplaceUserRepository implements UserRepository {
         return toUser(person);
     }
 
+    @Nonnull
+    @Override
+    public UserResource findById(@Nonnull String id) {
+        return toUser(Person.SCHEMA.getEntityNotNull(id));
+    }
+
     private void persist(Person person) {
         try {
             person.persist();

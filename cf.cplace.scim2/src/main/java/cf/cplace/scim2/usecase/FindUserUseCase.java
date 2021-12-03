@@ -1,13 +1,10 @@
-package cf.cplace.scim2.domain;
+package cf.cplace.scim2.usecase;
 
 import com.unboundid.scim2.common.types.UserResource;
 
 import javax.annotation.Nonnull;
 
-public interface UserRepository {
-
-    @Nonnull
-    UserResource create(@Nonnull UserResource user);
+public interface FindUserUseCase {
 
     @Nonnull
     UserResource findById(@Nonnull String id);
