@@ -4,11 +4,13 @@ import cf.cplace.platform.assets.group.Person;
 import cf.cplace.scim2.domain.ConflictException;
 import cf.cplace.scim2.domain.UserRepository;
 import com.google.common.base.Preconditions;
+import com.unboundid.scim2.common.types.Email;
 import com.unboundid.scim2.common.types.Name;
 import com.unboundid.scim2.common.types.UserResource;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 public class CplaceUserRepository implements UserRepository {
 
@@ -50,6 +52,7 @@ public class CplaceUserRepository implements UserRepository {
     private void mapUserToPerson(UserResource user, Person person) {
         person._login().set(user.getUserName());
         person._name().set(createName(user.getName()));
+        person._hasBeenDisabled().set(!user.getActive());
         // TODO: more to do here
     }
 
@@ -57,6 +60,10 @@ public class CplaceUserRepository implements UserRepository {
         UserResource user = new UserResource().setUserName(person._login().get())
                 .setName(new Name().setGivenName(person.getName()));
         user.setId(person.getId());
+        user.setActive(person.isActiveAccount());
+        user.setEmails(List.of(new Email()
+                .setPrimary(true)
+                .setValue(person._login().get())));
         // TODO: more to do here
        return user;
     }
