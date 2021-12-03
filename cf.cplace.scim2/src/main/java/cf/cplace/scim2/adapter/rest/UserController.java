@@ -5,6 +5,8 @@ import cf.cplace.scim2.usecase.CreateUserUseCase;
 import cf.cplace.scim2.usecase.FindUserUseCase;
 import com.bettercloud.scim2.server.annotation.ScimResource;
 import com.google.common.base.Preconditions;
+import com.unboundid.scim2.common.messages.ListResponse;
+import com.unboundid.scim2.common.messages.SearchRequest;
 import com.unboundid.scim2.common.types.UserResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +35,7 @@ public class UserController {
 //    public ListResponse<UserResource> findUsers(SearchRequest searchRequest) {
 //        return findCplaceUsers(searchRequest);
 //    }
-//
+
     @GetMapping("/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public UserResource getUser(@PathVariable String userId) {
