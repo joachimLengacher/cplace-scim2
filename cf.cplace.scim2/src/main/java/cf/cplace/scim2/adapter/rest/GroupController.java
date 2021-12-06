@@ -30,6 +30,12 @@ public class GroupController {
         return findGroupsUseCase.find(searchRequest);
     }
 
+    @GetMapping("/{groupId}")
+    @ResponseStatus(HttpStatus.OK)
+    public GroupResource getGroup(@PathVariable String groupId) {
+        return findGroupsUseCase.findById(groupId);
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public GroupResource createUser(@RequestBody GroupResource group) {

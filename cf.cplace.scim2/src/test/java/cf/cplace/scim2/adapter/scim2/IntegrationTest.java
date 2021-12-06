@@ -20,6 +20,7 @@ import static org.springframework.http.HttpStatus.*;
 public class IntegrationTest {
 
     public static final String USER_NAME = "bart.simpson@cplace.io";
+    public static final String GROUP_NAME = "New Group";
     public static final String DISPLAY_NAME = "Bart Simpson";
     public static final String XSRF_TOKEN = "baae13ec-8516-4d22-aff2-b7b809065a6b";
 
@@ -40,6 +41,7 @@ public class IntegrationTest {
     public void testGroupLifecycle() {
         findAllGroups();
         String id = createGroup();
+        findGroup(id);
     }
 
     private String createUser() {
@@ -193,9 +195,27 @@ public class IntegrationTest {
     }
 
 
+    private GroupResource findGroup(String id) {
+        Response response = given()
+                .auth()
+                .preemptive()
+                .basic("mustermann@test.tricia", "ottto")
+                .header("Content-type", "application/json")
+                .header("Accept", "application/scim+json; charset=utf-8")
+                .when()
+                .get("http://localhost:8083/intern/tricia/cplace-api/cf.cplace.scim2/Groups/" + id)
+                .then()
+                .extract().response();
+
+        assertThat(response.statusCode(), is(OK.value()));
+        assertGroupValues(response, "urn:ietf:params:scim:schemas:core:2.0:Group", GROUP_NAME);
+        assertThat(response.jsonPath().getString("id"), is(id));
+        return response.as(GroupResource.class);
+    }
+
     private String createGroup() {
         GroupResource group = new GroupResource()
-                .setDisplayName("New Group");
+                .setDisplayName(GROUP_NAME);
 
         Response response = given()
                 .auth()
@@ -213,11 +233,15 @@ public class IntegrationTest {
                 .extract().response();
 
         assertThat(response.statusCode(), is(CREATED.value()));
-        assertThat(response.jsonPath().getList("schemas"), hasSize(1));
-        assertThat(response.jsonPath().getList("schemas"), contains("urn:ietf:params:scim:schemas:core:2.0:Group"));
-        assertThat(response.jsonPath().getString("displayName"), is("New Group"));
+        assertGroupValues(response, "urn:ietf:params:scim:schemas:core:2.0:Group", GROUP_NAME);
         assertThat(response.jsonPath().getString("id"), is(not(nullValue())));
 
         return response.jsonPath().getString("id");
+    }
+
+    private void assertGroupValues(Response response, String s, String s2) {
+        assertThat(response.jsonPath().getList("schemas"), hasSize(1));
+        assertThat(response.jsonPath().getList("schemas"), contains(s));
+        assertThat(response.jsonPath().getString("displayName"), is(s2));
     }
 }

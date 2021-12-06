@@ -9,5 +9,8 @@ import javax.annotation.Nonnull;
 public interface FindGroupsUseCase {
 
     @Nonnull
+    GroupResource findById(@Nonnull String id);
+
+    @Nonnull
     ListResponse<GroupResource> find(@Nonnull SearchRequest searchRequest);
 }

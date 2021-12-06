@@ -12,5 +12,8 @@ public interface GroupRepository {
     ListResponse<GroupResource> find(@Nonnull SearchRequest searchRequest);
 
     @Nonnull
+    GroupResource findById(@Nonnull String id);
+
+    @Nonnull
     GroupResource create(@Nonnull GroupResource group);
 }

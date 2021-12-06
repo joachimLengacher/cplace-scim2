@@ -36,6 +36,12 @@ public class CplaceGroupRepository implements GroupRepository {
 
     @Nonnull
     @Override
+    public GroupResource findById(@Nonnull String id) {
+        return toGroupResource(Group.SCHEMA.getEntityNotNull(id));
+    }
+
+    @Nonnull
+    @Override
     public GroupResource create(@Nonnull GroupResource group) {
         Preconditions.checkNotNull(group);
         final Group cplaceGroup = Group.SCHEMA.createWritableEntity();

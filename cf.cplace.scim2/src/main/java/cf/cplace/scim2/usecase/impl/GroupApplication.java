@@ -26,6 +26,12 @@ public class GroupApplication implements FindGroupsUseCase, CreateGroupUseCase {
 
     @Nonnull
     @Override
+    public GroupResource findById(@Nonnull String id) {
+        return groupRepository.findById(id);
+    }
+
+    @Nonnull
+    @Override
     public GroupResource createGroup(@Nonnull GroupResource group) {
         return groupRepository.create(group);
     }
