@@ -2,6 +2,7 @@ package cf.cplace.scim2.adapter.cplace;
 
 import cf.cplace.platform.assets.group.Person;
 import cf.cplace.scim2.domain.ConflictException;
+import cf.cplace.scim2.domain.NotImplementedException;
 import cf.cplace.scim2.domain.UserRepository;
 import com.google.common.base.Preconditions;
 import com.unboundid.scim2.common.types.Email;
@@ -32,11 +33,15 @@ public class CplaceUserRepository implements UserRepository {
     @Override
     public UserResource update(@Nonnull UserResource user) {
         Preconditions.checkNotNull(user);
-        Person person = Person.SCHEMA.getEntityNotNull(user.getId());
-        person = person.createWritableCopy();
+        final Person person = Person.SCHEMA.getEntityNotNull(user.getId()).createWritableCopy();
         mapUserToPerson(user, person);
         persist(person);
         return toUser(person);
+    }
+
+    @Override
+    public void deleteById(@Nonnull String id) {
+        throw new NotImplementedException("Deleting users is not implemented.");
     }
 
     private void persist(Person person) {

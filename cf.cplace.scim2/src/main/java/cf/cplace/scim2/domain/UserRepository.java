@@ -14,4 +14,6 @@ public interface UserRepository {
 
     @Nonnull
     UserResource findById(@Nonnull String id);
+
+    void deleteById(@Nonnull String id);
 }

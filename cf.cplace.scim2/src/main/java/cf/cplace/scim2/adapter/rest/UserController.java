@@ -2,6 +2,7 @@ package cf.cplace.scim2.adapter.rest;
 
 import cf.cplace.platform.api.web.annotation.CplaceRequestMapping;
 import cf.cplace.scim2.usecase.CreateUserUseCase;
+import cf.cplace.scim2.usecase.DeleteUserUseCase;
 import cf.cplace.scim2.usecase.FindUserUseCase;
 import cf.cplace.scim2.usecase.UpdateUserUseCase;
 import com.bettercloud.scim2.server.annotation.ScimResource;
@@ -18,11 +19,13 @@ public class UserController {
     private final CreateUserUseCase createUserUseCase;
     private final FindUserUseCase findUserUseCase;
     private final UpdateUserUseCase updateUserUseCase;
+    private final DeleteUserUseCase deleteUserUseCase;
 
-    public UserController(CreateUserUseCase createUserUseCase, FindUserUseCase findUserUseCase, UpdateUserUseCase updateUserUseCase) {
+    public UserController(CreateUserUseCase createUserUseCase, FindUserUseCase findUserUseCase, UpdateUserUseCase updateUserUseCase, DeleteUserUseCase deleteUserUseCase) {
         this.createUserUseCase = Preconditions.checkNotNull(createUserUseCase);
         this.findUserUseCase = Preconditions.checkNotNull(findUserUseCase);
         this.updateUserUseCase = Preconditions.checkNotNull(updateUserUseCase);
+        this.deleteUserUseCase = Preconditions.checkNotNull(deleteUserUseCase);
     }
 
     @PostMapping
@@ -35,6 +38,12 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public UserResource updateUser(@RequestBody UserResource user) {
         return updateUserUseCase.updateUser(user);
+    }
+
+    @DeleteMapping("/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteUser(@PathVariable String userId) {
+        deleteUserUseCase.deleteById(userId);
     }
 
 //    @GetMapping

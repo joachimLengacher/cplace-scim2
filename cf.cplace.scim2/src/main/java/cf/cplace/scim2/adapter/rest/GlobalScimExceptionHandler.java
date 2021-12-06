@@ -2,6 +2,7 @@ package cf.cplace.scim2.adapter.rest;
 
 import cf.cplace.platform.services.exceptions.*;
 import cf.cplace.scim2.domain.ConflictException;
+import cf.cplace.scim2.domain.NotImplementedException;
 import com.unboundid.scim2.common.messages.ErrorResponse;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -38,8 +39,14 @@ public class GlobalScimExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(ConflictException.class)
     @ResponseBody
-    protected ResponseEntity<ErrorResponse> handleGeneralExceptions(ConflictException ex) {
+    protected ResponseEntity<ErrorResponse> handleConflicException(ConflictException ex) {
         return apiError(CONFLICT, ex.getMessage());
+    }
+
+    @ExceptionHandler(NotImplementedException.class)
+    @ResponseBody
+    protected ResponseEntity<ErrorResponse> handleNotImplementedException(NotImplementedException ex) {
+        return apiError(NOT_IMPLEMENTED, ex.getMessage());
     }
 
     private ResponseEntity<ErrorResponse> apiError(HttpStatus httpStatus, String message) {

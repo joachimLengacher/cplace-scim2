@@ -28,7 +28,7 @@ public class PluginSpringConfiguration {
     @Exported
     @Bean("cf.cplace.scim2.userController")
     public UserController userController(UserApplication userApplication) {
-        return new UserController(userApplication, userApplication, userApplication);
+        return new UserController(userApplication, userApplication, userApplication, userApplication);
     }
 
     @Exported
