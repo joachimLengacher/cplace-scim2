@@ -10,4 +10,7 @@ public interface GroupRepository {
 
     @Nonnull
     ListResponse<GroupResource> find(@Nonnull SearchRequest searchRequest);
+
+    @Nonnull
+    GroupResource create(@Nonnull GroupResource group);
 }

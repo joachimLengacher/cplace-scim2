@@ -1,7 +1,9 @@
 package cf.cplace.scim2.adapter.cplace;
 
 import cf.cplace.platform.assets.group.Group;
+import cf.cplace.scim2.domain.ConflictException;
 import cf.cplace.scim2.domain.GroupRepository;
+import com.google.common.base.Preconditions;
 import com.unboundid.scim2.common.messages.ListResponse;
 import com.unboundid.scim2.common.messages.SearchRequest;
 import com.unboundid.scim2.common.types.GroupResource;
@@ -28,11 +30,35 @@ public class CplaceGroupRepository implements GroupRepository {
         // TODO: apply search filters
 
         final List<GroupResource> resources = StreamSupport.stream(Group.SCHEMA.getEntities().spliterator(), false)
-                .map(this::toGroup).collect(Collectors.toList());
+                .map(this::toGroupResource).collect(Collectors.toList());
         return new ListResponse<>(resources.size(), resources, 0, fetchCount);
     }
 
-    private GroupResource toGroup(Group cplaceGroup) {
+    @Nonnull
+    @Override
+    public GroupResource create(@Nonnull GroupResource group) {
+        Preconditions.checkNotNull(group);
+        final Group cplaceGroup = Group.SCHEMA.createWritableEntity();
+        mapGroupResourceToCplaceGroup(group, cplaceGroup);
+        persist(cplaceGroup);
+        return toGroupResource(cplaceGroup);
+    }
+
+    private void mapGroupResourceToCplaceGroup(GroupResource group, Group cplaceGroup) {
+        cplaceGroup._name().set(group.getDisplayName());
+        cplaceGroup._isTechnicalGroup().set(false);
+        cplaceGroup._administrators().set(Group.getAdminGroup());
+    }
+
+    private void persist(Group cplaceGroup) {
+        try {
+            cplaceGroup.persist();
+        } catch (IllegalStateException e) {
+            throw new ConflictException(e.getMessage());
+        }
+    }
+
+    private GroupResource toGroupResource(Group cplaceGroup) {
         GroupResource group = new GroupResource().setDisplayName(cplaceGroup.getName());
         group.setId(cplaceGroup.getId());
         return group;

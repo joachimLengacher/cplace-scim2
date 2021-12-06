@@ -39,6 +39,7 @@ public class IntegrationTest {
     @Test
     public void testGroupLifecycle() {
         findAllGroups();
+        String id = createGroup();
     }
 
     private String createUser() {
@@ -105,7 +106,9 @@ public class IntegrationTest {
                 .extract().response();
 
         assertThat(response.statusCode(), is(OK.value()));
-        final ListResponse allUsers = response.getBody().as(ListResponse.class);
+
+        @SuppressWarnings("unchecked")
+        final ListResponse<UserResource> allUsers = response.getBody().as(ListResponse.class);
 
         assertThat(allUsers.getTotalResults(), is(2));
         assertThat(allUsers.getItemsPerPage(), is(30));
@@ -181,10 +184,40 @@ public class IntegrationTest {
                 .extract().response();
 
         assertThat(response.statusCode(), is(OK.value()));
+        @SuppressWarnings("unchecked")
         final ListResponse<GroupResource> allGroups = response.getBody().as(ListResponse.class);
         assertThat(allGroups.getTotalResults(), is(1));
         assertThat(allGroups.getItemsPerPage(), is(30));
         assertThat(allGroups.getStartIndex(), is(0));
         assertThat(response.jsonPath().getList("schemas"), contains("urn:ietf:params:scim:api:messages:2.0:ListResponse"));
+    }
+
+
+    private String createGroup() {
+        GroupResource group = new GroupResource()
+                .setDisplayName("New Group");
+
+        Response response = given()
+                .auth()
+                .preemptive()
+                .basic("mustermann@test.tricia", "ottto")
+                .header("Content-type", "application/json")
+                .header("Accept", "application/scim+json; charset=utf-8")
+                .header("X-XSRF-TOKEN", XSRF_TOKEN)
+                .cookie("XSRF-TOKEN", XSRF_TOKEN)
+                .and()
+                .body(group)
+                .when()
+                .post("http://localhost:8083/intern/tricia/cplace-api/cf.cplace.scim2/Groups")
+                .then()
+                .extract().response();
+
+        assertThat(response.statusCode(), is(CREATED.value()));
+        assertThat(response.jsonPath().getList("schemas"), hasSize(1));
+        assertThat(response.jsonPath().getList("schemas"), contains("urn:ietf:params:scim:schemas:core:2.0:Group"));
+        assertThat(response.jsonPath().getString("displayName"), is("New Group"));
+        assertThat(response.jsonPath().getString("id"), is(not(nullValue())));
+
+        return response.jsonPath().getString("id");
     }
 }
