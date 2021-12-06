@@ -50,6 +50,16 @@ public class CplaceGroupRepository implements GroupRepository {
         return toGroupResource(cplaceGroup);
     }
 
+    @Nonnull
+    @Override
+    public GroupResource update(@Nonnull GroupResource groupResource) {
+        Preconditions.checkNotNull(groupResource);
+        final Group group = Group.SCHEMA.getEntityNotNull(groupResource.getId()).createWritableCopy();
+        mapGroupResourceToCplaceGroup(groupResource, group);
+        persist(group);
+        return toGroupResource(group);
+    }
+
     private void mapGroupResourceToCplaceGroup(GroupResource group, Group cplaceGroup) {
         cplaceGroup._name().set(group.getDisplayName());
         cplaceGroup._isTechnicalGroup().set(false);

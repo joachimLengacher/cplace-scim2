@@ -3,6 +3,7 @@ package cf.cplace.scim2.adapter.rest;
 import cf.cplace.platform.api.web.annotation.CplaceRequestMapping;
 import cf.cplace.scim2.usecase.CreateGroupUseCase;
 import cf.cplace.scim2.usecase.FindGroupsUseCase;
+import cf.cplace.scim2.usecase.UpdateGroupUseCase;
 import com.bettercloud.scim2.server.annotation.ScimResource;
 import com.google.common.base.Preconditions;
 import com.unboundid.scim2.common.messages.ListResponse;
@@ -18,10 +19,12 @@ public class GroupController {
 
     private final FindGroupsUseCase findGroupsUseCase;
     private final CreateGroupUseCase createGroupUseCase;
+    private final UpdateGroupUseCase updateGroupUseCase;
 
-    public GroupController(FindGroupsUseCase findGroupsUseCase, CreateGroupUseCase createGroupUseCase) {
+    public GroupController(FindGroupsUseCase findGroupsUseCase, CreateGroupUseCase createGroupUseCase, UpdateGroupUseCase updateGroupUseCase) {
         this.findGroupsUseCase = Preconditions.checkNotNull(findGroupsUseCase);
         this.createGroupUseCase = Preconditions.checkNotNull(createGroupUseCase);
+        this.updateGroupUseCase = Preconditions.checkNotNull(updateGroupUseCase);
     }
 
     @GetMapping
@@ -42,4 +45,9 @@ public class GroupController {
         return createGroupUseCase.createGroup(group);
     }
 
+    @PutMapping("/{groupId}")
+    @ResponseStatus(HttpStatus.OK)
+    public GroupResource updateGroup(@RequestBody GroupResource group) {
+        return updateGroupUseCase.updateGroup(group);
+    }
 }

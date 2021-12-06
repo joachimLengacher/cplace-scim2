@@ -49,7 +49,7 @@ public class PluginSpringConfiguration {
     @Exported
     @Bean("cf.cplace.scim2.groupController")
     public GroupController groupController(GroupApplication groupApplication) {
-        return new GroupController(groupApplication, groupApplication);
+        return new GroupController(groupApplication, groupApplication, groupApplication);
     }
 
     @Exported

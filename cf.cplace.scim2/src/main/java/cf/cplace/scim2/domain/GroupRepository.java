@@ -16,4 +16,7 @@ public interface GroupRepository {
 
     @Nonnull
     GroupResource create(@Nonnull GroupResource group);
+
+    @Nonnull
+    GroupResource update(@Nonnull GroupResource groupResource);
 }
