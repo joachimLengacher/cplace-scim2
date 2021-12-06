@@ -1,6 +1,7 @@
 package cf.cplace.scim2.adapter.scim2;
 
 import cf.cplace.platform.test.util.StartServerRule;
+import com.unboundid.scim2.common.messages.ListResponse;
 import com.unboundid.scim2.common.types.Email;
 import com.unboundid.scim2.common.types.UserResource;
 import io.restassured.response.Response;
@@ -29,6 +30,7 @@ public class IntegrationTest {
     public void testUserLifecycle() {
         String id = createUser();
         findUser(id);
+        findAllUsers();
         updateUser(id);
         deleteUser(id);
     }
@@ -80,6 +82,23 @@ public class IntegrationTest {
         return response.as(UserResource.class);
     }
 
+
+    private void findAllUsers() {
+        Response response = given()
+                .auth()
+                .preemptive()
+                .basic("mustermann@test.tricia", "ottto")
+                .header("Content-type", "application/json")
+                .header("Accept", "application/scim+json; charset=utf-8")
+                .when()
+                .get("http://localhost:8083/intern/tricia/cplace-api/cf.cplace.scim2/Users")
+                .then()
+                .extract().response();
+
+        assertThat(response.statusCode(), is(OK.value()));
+        final ListResponse allUsers = response.getBody().as(ListResponse.class);
+        assertThat(allUsers.getTotalResults(), is(2));
+    }
 
     private void updateUser(String id) {
         UserResource user = findUser(id);

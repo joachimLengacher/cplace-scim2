@@ -13,6 +13,7 @@ scim2:
             supported: false
         filter:
             supported: false
+            max-results: 100
         patch:
             supported: false
         sort:

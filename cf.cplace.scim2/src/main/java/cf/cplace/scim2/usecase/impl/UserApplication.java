@@ -6,6 +6,8 @@ import cf.cplace.scim2.usecase.DeleteUserUseCase;
 import cf.cplace.scim2.usecase.FindUserUseCase;
 import cf.cplace.scim2.usecase.UpdateUserUseCase;
 import com.google.common.base.Preconditions;
+import com.unboundid.scim2.common.messages.ListResponse;
+import com.unboundid.scim2.common.messages.SearchRequest;
 import com.unboundid.scim2.common.types.UserResource;
 
 import javax.annotation.Nonnull;
@@ -28,6 +30,12 @@ public class UserApplication implements CreateUserUseCase, FindUserUseCase, Upda
     @Override
     public UserResource findById(@Nonnull String id) {
         return  userRepository.findById(id);
+    }
+
+    @Nonnull
+    @Override
+    public ListResponse<UserResource> find(@Nonnull SearchRequest searchRequest) {
+        return userRepository.find(searchRequest);
     }
 
     @Nonnull

@@ -7,6 +7,8 @@ import cf.cplace.scim2.usecase.FindUserUseCase;
 import cf.cplace.scim2.usecase.UpdateUserUseCase;
 import com.bettercloud.scim2.server.annotation.ScimResource;
 import com.google.common.base.Preconditions;
+import com.unboundid.scim2.common.messages.ListResponse;
+import com.unboundid.scim2.common.messages.SearchRequest;
 import com.unboundid.scim2.common.types.UserResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -46,11 +48,11 @@ public class UserController {
         deleteUserUseCase.deleteById(userId);
     }
 
-//    @GetMapping
-//    @ResponseStatus(HttpStatus.OK)
-//    public ListResponse<UserResource> findUsers(SearchRequest searchRequest) {
-//        return findCplaceUsers(searchRequest);
-//    }
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public ListResponse<UserResource> findUsers(SearchRequest searchRequest) {
+        return findUserUseCase.find(searchRequest);
+    }
 
     @GetMapping("/{userId}")
     @ResponseStatus(HttpStatus.OK)

@@ -5,13 +5,23 @@ import cf.cplace.scim2.domain.ConflictException;
 import cf.cplace.scim2.domain.NotImplementedException;
 import cf.cplace.scim2.domain.UserRepository;
 import com.google.common.base.Preconditions;
+import com.unboundid.scim2.common.messages.ListResponse;
+import com.unboundid.scim2.common.messages.SearchRequest;
 import com.unboundid.scim2.common.types.Email;
 import com.unboundid.scim2.common.types.UserResource;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class CplaceUserRepository implements UserRepository {
+
+    private final int maxResults;
+
+    public CplaceUserRepository(int maxResults) {
+        this.maxResults = maxResults;
+    }
 
     @Nonnull
     @Override
@@ -27,6 +37,17 @@ public class CplaceUserRepository implements UserRepository {
     @Override
     public UserResource findById(@Nonnull String id) {
         return toUser(Person.SCHEMA.getEntityNotNull(id));
+    }
+
+    @Nonnull
+    @Override
+    public ListResponse<UserResource> find(@Nonnull SearchRequest searchRequest) {
+
+        // TODO: consider search filters
+
+        final List<UserResource> resources = StreamSupport.stream(Person.SCHEMA.getEntities().spliterator(), false)
+                .map(this::toUser).collect(Collectors.toList());
+        return new ListResponse<UserResource>(resources.size(), resources, 0, maxResults);
     }
 
     @Nonnull

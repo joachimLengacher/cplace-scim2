@@ -6,6 +6,7 @@ import cf.cplace.scim2.adapter.rest.GlobalScimExceptionHandler;
 import cf.cplace.scim2.adapter.rest.UserController;
 import cf.cplace.scim2.domain.UserRepository;
 import cf.cplace.scim2.usecase.impl.UserApplication;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,8 +17,8 @@ import org.springframework.context.annotation.Configuration;
 public class PluginSpringConfiguration {
 
     @Bean
-    public UserRepository userRepository() {
-        return new CplaceUserRepository();
+    public UserRepository userRepository(@Value("${scim2.service-provider-config.filter.max-results}") int maxResults) {
+        return new CplaceUserRepository(maxResults);
     }
 
     @Bean
