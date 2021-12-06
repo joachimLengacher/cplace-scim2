@@ -43,11 +43,13 @@ public class CplaceUserRepository implements UserRepository {
     @Override
     public ListResponse<UserResource> find(@Nonnull SearchRequest searchRequest) {
 
-        // TODO: consider search filters
+        int fetchCount = searchRequest.getCount() != null ? searchRequest.getCount() : maxResults;
+
+        // TODO: apply search filters
 
         final List<UserResource> resources = StreamSupport.stream(Person.SCHEMA.getEntities().spliterator(), false)
                 .map(this::toUser).collect(Collectors.toList());
-        return new ListResponse<UserResource>(resources.size(), resources, 0, maxResults);
+        return new ListResponse<>(resources.size(), resources, 0, fetchCount);
     }
 
     @Nonnull

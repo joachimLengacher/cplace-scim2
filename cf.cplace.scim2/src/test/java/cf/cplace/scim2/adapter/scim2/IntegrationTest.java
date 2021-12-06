@@ -3,6 +3,7 @@ package cf.cplace.scim2.adapter.scim2;
 import cf.cplace.platform.test.util.StartServerRule;
 import com.unboundid.scim2.common.messages.ListResponse;
 import com.unboundid.scim2.common.types.Email;
+import com.unboundid.scim2.common.types.GroupResource;
 import com.unboundid.scim2.common.types.UserResource;
 import io.restassured.response.Response;
 import org.junit.Rule;
@@ -33,6 +34,11 @@ public class IntegrationTest {
         findAllUsers();
         updateUser(id);
         deleteUser(id);
+    }
+
+    @Test
+    public void testGroupLifecycle() {
+        findAllGroups();
     }
 
     private String createUser() {
@@ -90,6 +96,9 @@ public class IntegrationTest {
                 .basic("mustermann@test.tricia", "ottto")
                 .header("Content-type", "application/json")
                 .header("Accept", "application/scim+json; charset=utf-8")
+                .and()
+                .param("count", 30)
+                .param("startIndex", 1)
                 .when()
                 .get("http://localhost:8083/intern/tricia/cplace-api/cf.cplace.scim2/Users")
                 .then()
@@ -97,7 +106,11 @@ public class IntegrationTest {
 
         assertThat(response.statusCode(), is(OK.value()));
         final ListResponse allUsers = response.getBody().as(ListResponse.class);
+
         assertThat(allUsers.getTotalResults(), is(2));
+        assertThat(allUsers.getItemsPerPage(), is(30));
+        assertThat(allUsers.getStartIndex(), is(0));
+        assertThat(response.jsonPath().getList("schemas"), contains("urn:ietf:params:scim:api:messages:2.0:ListResponse"));
     }
 
     private void updateUser(String id) {
@@ -150,5 +163,28 @@ public class IntegrationTest {
         assertThat(response.jsonPath().getBoolean("active"), is(isActive));
         assertThat(response.jsonPath().getList("emails", Email.class).get(0).getPrimary(), is(true));
         assertThat(response.jsonPath().getList("emails", Email.class).get(0).getValue(), is(email));
+    }
+
+    private void findAllGroups() {
+        Response response = given()
+                .auth()
+                .preemptive()
+                .basic("mustermann@test.tricia", "ottto")
+                .header("Content-type", "application/json")
+                .header("Accept", "application/scim+json; charset=utf-8")
+                .and()
+                .param("count", 30)
+                .param("startIndex", 1)
+                .when()
+                .get("http://localhost:8083/intern/tricia/cplace-api/cf.cplace.scim2/Groups")
+                .then()
+                .extract().response();
+
+        assertThat(response.statusCode(), is(OK.value()));
+        final ListResponse<GroupResource> allGroups = response.getBody().as(ListResponse.class);
+        assertThat(allGroups.getTotalResults(), is(1));
+        assertThat(allGroups.getItemsPerPage(), is(30));
+        assertThat(allGroups.getStartIndex(), is(0));
+        assertThat(response.jsonPath().getList("schemas"), contains("urn:ietf:params:scim:api:messages:2.0:ListResponse"));
     }
 }
