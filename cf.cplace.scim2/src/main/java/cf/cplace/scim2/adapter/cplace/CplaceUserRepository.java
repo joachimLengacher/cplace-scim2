@@ -9,6 +9,8 @@ import com.unboundid.scim2.common.messages.ListResponse;
 import com.unboundid.scim2.common.messages.SearchRequest;
 import com.unboundid.scim2.common.types.Email;
 import com.unboundid.scim2.common.types.UserResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -16,6 +18,8 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public class CplaceUserRepository implements UserRepository {
+
+    private static final Logger log = LoggerFactory.getLogger(CplaceUserRepository.class);
 
     private final int maxResults;
 
@@ -26,44 +30,51 @@ public class CplaceUserRepository implements UserRepository {
     @Nonnull
     @Override
     public UserResource create(@Nonnull UserResource user) {
+        log.debug("Creating person with login='{}'...", user.getUserName());
         Preconditions.checkNotNull(user);
         final Person person = Person.SCHEMA.createWritableEntity();
         mapUserToPerson(user, person);
         persist(person);
+        log.debug("Successfully created person with login='{}'. Id is now '{}'.", person._login().get(), person.getId());
         return toUser(person);
     }
 
     @Nonnull
     @Override
     public UserResource findById(@Nonnull String id) {
+        log.debug("Finding person with id='{}'...", id);
         return toUser(Person.SCHEMA.getEntityNotNull(id));
     }
 
     @Nonnull
     @Override
     public ListResponse<UserResource> find(@Nonnull SearchRequest searchRequest) {
-
+        log.debug("Finding persons that match {}...", searchRequest);
         int fetchCount = searchRequest.getCount() != null ? searchRequest.getCount() : maxResults;
 
         // TODO: apply search filters
 
         final List<UserResource> resources = StreamSupport.stream(Person.SCHEMA.getEntities().spliterator(), false)
                 .map(this::toUser).collect(Collectors.toList());
+        log.debug("Found {} matching persons", resources.size());
         return new ListResponse<>(resources.size(), resources, 0, fetchCount);
     }
 
     @Nonnull
     @Override
     public UserResource update(@Nonnull UserResource user) {
+        log.debug("Updating person with id={}, login='{}'...", user.getId(), user.getUserName());
         Preconditions.checkNotNull(user);
         final Person person = Person.SCHEMA.getEntityNotNull(user.getId()).createWritableCopy();
         mapUserToPerson(user, person);
         persist(person);
+        log.debug("Successfully updated person with id='{}'.", person.getId());
         return toUser(person);
     }
 
     @Override
     public void deleteById(@Nonnull String id) {
+        log.warn("Deleting person entities not implemented!");
         throw new NotImplementedException("Deleting users is not implemented.");
     }
 
