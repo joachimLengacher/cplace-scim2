@@ -4,11 +4,19 @@ import cf.cplace.platform.assets.group.Person;
 import cf.cplace.scim2.domain.ConflictException;
 import cf.cplace.scim2.domain.NotImplementedException;
 import cf.cplace.scim2.domain.UserRepository;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
+import com.unboundid.scim2.common.exceptions.BadRequestException;
+import com.unboundid.scim2.common.exceptions.ScimException;
+import com.unboundid.scim2.common.filters.Filter;
 import com.unboundid.scim2.common.messages.ListResponse;
 import com.unboundid.scim2.common.messages.SearchRequest;
 import com.unboundid.scim2.common.types.Email;
+import com.unboundid.scim2.common.types.Name;
 import com.unboundid.scim2.common.types.UserResource;
+import com.unboundid.scim2.common.utils.FilterEvaluator;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +30,8 @@ public class CplaceUserRepository implements UserRepository {
     private static final Logger log = LoggerFactory.getLogger(CplaceUserRepository.class);
 
     private final int maxResults;
+
+    private final ObjectMapper mapper = new ObjectMapper();
 
     public CplaceUserRepository(int maxResults) {
         this.maxResults = maxResults;
@@ -49,15 +59,35 @@ public class CplaceUserRepository implements UserRepository {
     @Nonnull
     @Override
     public ListResponse<UserResource> find(@Nonnull SearchRequest searchRequest) {
-        log.debug("Finding persons that match {}...", searchRequest);
-        int fetchCount = searchRequest.getCount() != null ? searchRequest.getCount() : maxResults;
+        try {
+            log.debug("Finding persons that match {}...", searchRequest);
+            int fetchCount = searchRequest.getCount() != null ? searchRequest.getCount() : maxResults;
 
-        // TODO: apply search filters
+            final Filter filter;
+                filter = Filter.fromString(searchRequest.getFilter());
 
-        final List<UserResource> resources = StreamSupport.stream(Person.SCHEMA.getEntities().spliterator(), false)
-                .map(this::toUser).collect(Collectors.toList());
-        log.debug("Found {} matching persons", resources.size());
-        return new ListResponse<>(resources.size(), resources, 0, fetchCount);
+            final List<UserResource> resources = StreamSupport.stream(Person.SCHEMA.getEntities().spliterator(), false)
+                    .map(this::toUser)
+                    .filter(userResource -> matchesFilter(filter, userResource))
+                    .collect(Collectors.toList());
+
+            log.debug("Found {} matching persons", resources.size());
+        return   new ListResponse<>(resources.size(), resources, 0, fetchCount);
+        } catch (BadRequestException e) {
+            throw new cf.cplace.scim2.domain.BadRequestException(e.getMessage());
+        }
+    }
+
+    private boolean matchesFilter(Filter filter, UserResource userResource) {
+        try {
+            return FilterEvaluator.evaluate(filter, toJsonNode(userResource));
+        } catch (ScimException e) {
+            throw new cf.cplace.scim2.domain.BadRequestException(e.getMessage());
+        }
+    }
+
+    private JsonNode toJsonNode(UserResource user) {
+        return mapper.convertValue(user, JsonNode.class);
     }
 
     @Nonnull
@@ -88,14 +118,28 @@ public class CplaceUserRepository implements UserRepository {
 
     private void mapUserToPerson(UserResource user, Person person) {
         person._login().set(user.getUserName());
-        person._name().set(user.getDisplayName());
-        person._hasBeenDisabled().set(!user.getActive());
+        person._name().set(personName(user));
+        person._hasBeenDisabled().set(user.getActive() != null && !user.getActive());
         // TODO: more to do here
+    }
+
+    private String personName(UserResource user) {
+        if (user.getDisplayName() != null) {
+            return user.getDisplayName();
+        }
+        return toDisplayName(user.getName());
+    }
+
+    private String toDisplayName(Name name) {
+        if (name == null) {
+            return "";
+        }
+        return StringUtils.trimToEmpty(name.getGivenName()) + " " + StringUtils.trimToEmpty(name.getFamilyName());
     }
 
     private UserResource toUser(Person person) {
         UserResource user = new UserResource().setUserName(person._login().get())
-                .setDisplayName(person.getName());
+                .setName(new Name().setGivenName(person.getName()));
         user.setId(person.getId());
         user.setActive(person.isActiveAccount());
         user.setEmails(List.of(new Email()

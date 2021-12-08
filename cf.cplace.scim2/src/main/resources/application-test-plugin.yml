@@ -19,8 +19,9 @@ scim2:
         sort:
             supported: false
 
-logging:
-    level:
         cf:
             cplace:
                 scim2: debug
+cplace:
+    server:
+        external-base-url: https://4715-2001-a61-2538-c001-cd9a-f934-fcef-10db.ngrok.io

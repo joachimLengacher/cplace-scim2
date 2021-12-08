@@ -1,6 +1,7 @@
 package cf.cplace.scim2.adapter.rest;
 
 import cf.cplace.platform.services.exceptions.*;
+import cf.cplace.scim2.domain.BadRequestException;
 import cf.cplace.scim2.domain.ConflictException;
 import cf.cplace.scim2.domain.NotImplementedException;
 import com.unboundid.scim2.common.messages.ErrorResponse;
@@ -47,6 +48,12 @@ public class GlobalScimExceptionHandler extends ResponseEntityExceptionHandler {
     @ResponseBody
     protected ResponseEntity<ErrorResponse> handleNotImplementedException(NotImplementedException ex) {
         return apiError(NOT_IMPLEMENTED, ex.getMessage());
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    @ResponseBody
+    protected ResponseEntity<ErrorResponse> handleBadRequestException(BadRequestException ex) {
+        return apiError(BAD_REQUEST, ex.getMessage());
     }
 
     private ResponseEntity<ErrorResponse> apiError(HttpStatus httpStatus, String message) {
