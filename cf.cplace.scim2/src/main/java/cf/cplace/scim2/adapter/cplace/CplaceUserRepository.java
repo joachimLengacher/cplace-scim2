@@ -108,8 +108,16 @@ public class CplaceUserRepository implements UserRepository {
         person._login().set(user.getUserName());
         person._name().set(personName(user));
         person._hasBeenDisabled().set(user.getActive() != null && !user.getActive());
-        person._password().setHash(StringUtils.trimToEmpty(user.getPassword()));
+        person._password().setHash(password(user));
         // TODO: more to do here
+    }
+
+    private String password(UserResource user) {
+        String password = user.getPassword();
+        if (StringUtils.isBlank(password)) {
+            return Person.randomPassword();
+        }
+        return password;
     }
 
     private String personName(UserResource user) {
