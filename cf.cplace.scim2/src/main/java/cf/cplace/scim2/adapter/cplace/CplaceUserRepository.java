@@ -72,22 +72,10 @@ public class CplaceUserRepository implements UserRepository {
                     .collect(Collectors.toList());
 
             log.debug("Found {} matching persons", resources.size());
-        return   new ListResponse<>(resources.size(), resources, 0, fetchCount);
+            return   new ListResponse<>(resources.size(), resources, 0, fetchCount);
         } catch (BadRequestException e) {
             throw new cf.cplace.scim2.domain.BadRequestException(e.getMessage());
         }
-    }
-
-    private boolean matchesFilter(Filter filter, UserResource userResource) {
-        try {
-            return FilterEvaluator.evaluate(filter, toJsonNode(userResource));
-        } catch (ScimException e) {
-            throw new cf.cplace.scim2.domain.BadRequestException(e.getMessage());
-        }
-    }
-
-    private JsonNode toJsonNode(UserResource user) {
-        return mapper.convertValue(user, JsonNode.class);
     }
 
     @Nonnull
@@ -120,6 +108,7 @@ public class CplaceUserRepository implements UserRepository {
         person._login().set(user.getUserName());
         person._name().set(personName(user));
         person._hasBeenDisabled().set(user.getActive() != null && !user.getActive());
+        person._password().setHash(StringUtils.trimToEmpty(user.getPassword()));
         // TODO: more to do here
     }
 
@@ -145,7 +134,21 @@ public class CplaceUserRepository implements UserRepository {
         user.setEmails(List.of(new Email()
                 .setPrimary(true)
                 .setValue(person._login().get())));
+        user.setPassword(person._password().getHash());
         // TODO: more to do here
        return user;
     }
+
+    private boolean matchesFilter(Filter filter, UserResource userResource) {
+        try {
+            return FilterEvaluator.evaluate(filter, toJsonNode(userResource));
+        } catch (ScimException e) {
+            throw new cf.cplace.scim2.domain.BadRequestException(e.getMessage());
+        }
+    }
+
+    private JsonNode toJsonNode(UserResource user) {
+        return mapper.convertValue(user, JsonNode.class);
+    }
+
 }
