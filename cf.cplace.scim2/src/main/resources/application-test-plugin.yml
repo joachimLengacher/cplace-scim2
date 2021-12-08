@@ -19,6 +19,9 @@ scim2:
         sort:
             supported: false
 
+
+logging:
+    level:
         cf:
             cplace:
                 scim2: debug
