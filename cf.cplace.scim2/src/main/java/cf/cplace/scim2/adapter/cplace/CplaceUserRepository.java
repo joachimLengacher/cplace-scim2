@@ -115,6 +115,7 @@ public class CplaceUserRepository implements UserRepository {
         person._name().set(personNameOf(user));
         person._hasBeenDisabled().set(user.getActive() != null && !user.getActive());
         person._password().setHash(passwordOf(user));
+        person._locale().set(user.getPreferredLanguage());
         copyPhoto(user, person);
         // TODO: potentially more to do here
     }
@@ -124,7 +125,7 @@ public class CplaceUserRepository implements UserRepository {
             if(hasPhoto(user)) {
                 updatePhoto(person, photoOf(user));
             } else {
-                deletePhoto(person);
+                // TODO: delete photo in this case or just keep the one we might already have?
             }
         } catch (IOException e) {
             log.error("Failed to set image for user '" + user.getUserName() + "'", e);
@@ -139,10 +140,6 @@ public class CplaceUserRepository implements UserRepository {
         if (image != null) {
             ImageIO.write(image, "PNG", thumbnailFileOf(person));
         }
-    }
-
-    private void deletePhoto(Person person) {
-        // TODO: delete photo
     }
 
     private File thumbnailFileOf(Person person) throws IOException {
