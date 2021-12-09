@@ -21,6 +21,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -63,8 +68,9 @@ public class CplaceUserRepository implements UserRepository {
             log.debug("Finding persons that match {}...", searchRequest);
             int fetchCount = searchRequest.getCount() != null ? searchRequest.getCount() : maxResults;
 
-            final Filter filter;
-                filter = Filter.fromString(searchRequest.getFilter());
+            // TODO: implement paging
+
+            final Filter filter = Filter.fromString(searchRequest.getFilter());
 
             final List<UserResource> resources = StreamSupport.stream(Person.SCHEMA.getEntities().spliterator(), false)
                     .map(this::toUser)
@@ -106,13 +112,52 @@ public class CplaceUserRepository implements UserRepository {
 
     private void mapUserToPerson(UserResource user, Person person) {
         person._login().set(user.getUserName());
-        person._name().set(personName(user));
+        person._name().set(personNameOf(user));
         person._hasBeenDisabled().set(user.getActive() != null && !user.getActive());
-        person._password().setHash(password(user));
-        // TODO: more to do here
+        person._password().setHash(passwordOf(user));
+        copyPhoto(user, person);
+        // TODO: potentially more to do here
     }
 
-    private String password(UserResource user) {
+    private void copyPhoto(UserResource user, Person person) {
+        try {
+            if(hasPhoto(user)) {
+                updatePhoto(person, photoOf(user));
+            } else {
+                deletePhoto(person);
+            }
+        } catch (IOException e) {
+            log.error("Failed to set image for user '" + user.getUserName() + "'", e);
+        }
+    }
+
+    private boolean hasPhoto(UserResource user) {
+        return user.getPhotos() != null && user.getPhotos().size() > 0;
+    }
+
+    private void updatePhoto(Person person, BufferedImage image) throws IOException {
+        if (image != null) {
+            ImageIO.write(image, "PNG", thumbnailFileOf(person));
+        }
+    }
+
+    private void deletePhoto(Person person) {
+        // TODO: delete photo
+    }
+
+    private File thumbnailFileOf(Person person) throws IOException {
+        final File thumbnailFile = person.getThumbnailFile();
+        thumbnailFile.getParentFile().mkdirs();
+        thumbnailFile.createNewFile();
+        return thumbnailFile;
+    }
+
+    private BufferedImage photoOf(UserResource user) throws IOException {
+        final URI photoUrl = user.getPhotos().get(0).getValue();
+        return ImageIO.read(photoUrl.toURL());
+    }
+
+    private String passwordOf(UserResource user) {
         String password = user.getPassword();
         if (StringUtils.isBlank(password)) {
             return Person.randomPassword();
@@ -120,14 +165,14 @@ public class CplaceUserRepository implements UserRepository {
         return password;
     }
 
-    private String personName(UserResource user) {
+    private String personNameOf(UserResource user) {
         if (user.getDisplayName() != null) {
             return user.getDisplayName();
         }
-        return toDisplayName(user.getName());
+        return displayNameOf(user.getName());
     }
 
-    private String toDisplayName(Name name) {
+    private String displayNameOf(Name name) {
         if (name == null) {
             return "";
         }
