@@ -8,8 +8,6 @@ import cf.cplace.scim2.adapter.rest.GroupController;
 import cf.cplace.scim2.adapter.rest.UserController;
 import cf.cplace.scim2.domain.GroupRepository;
 import cf.cplace.scim2.domain.UserRepository;
-import cf.cplace.scim2.usecase.impl.GroupApplication;
-import cf.cplace.scim2.usecase.impl.UserApplication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,26 +34,16 @@ public class PluginSpringConfiguration {
         return new CplaceGroupRepository(maxResults);
     }
 
-    @Bean
-    public UserApplication userApplication(UserRepository userRepository) {
-        return new UserApplication(userRepository);
-    }
-
-    @Bean
-    public GroupApplication groupApplication(GroupRepository groupRepository) {
-        return new GroupApplication(groupRepository);
-    }
-
     @Exported
     @Bean("cf.cplace.scim2.userController")
-    public UserController userController(UserApplication userApplication) {
-        return new UserController(userApplication, userApplication, userApplication, userApplication);
+    public UserController userController(UserRepository userRepository) {
+        return new UserController(userRepository);
     }
 
     @Exported
     @Bean("cf.cplace.scim2.groupController")
-    public GroupController groupController(GroupApplication groupApplication) {
-        return new GroupController(groupApplication, groupApplication, groupApplication);
+    public GroupController groupController(GroupRepository groupRepository) {
+        return new GroupController(groupRepository);
     }
 
     @Exported
