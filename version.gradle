@@ -1,4 +1,4 @@
 ext {
-    currentVersion = '5.19.0-SNAPSHOT'
-    createdOnBranch='release/5.19'
+    currentVersion='22.2.0-SNAPSHOT'
+    createdOnBranch='release/22.2'
 }

@@ -13,7 +13,6 @@ import com.unboundid.scim2.common.filters.Filter;
 import com.unboundid.scim2.common.messages.ListResponse;
 import com.unboundid.scim2.common.messages.SearchRequest;
 import com.unboundid.scim2.common.types.Email;
-import com.unboundid.scim2.common.types.Name;
 import com.unboundid.scim2.common.types.UserResource;
 import com.unboundid.scim2.common.utils.FilterEvaluator;
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +27,10 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
+import static com.google.common.base.Strings.nullToEmpty;
 
 public class CplaceUserRepository implements UserRepository {
 
@@ -64,23 +66,26 @@ public class CplaceUserRepository implements UserRepository {
     @Nonnull
     @Override
     public ListResponse<UserResource> find(@Nonnull SearchRequest searchRequest) {
+        log.debug("Finding persons that match {}...", searchRequest);
+        int fetchCount = searchRequest.getCount() != null ? searchRequest.getCount() : maxResults;
+
+        // TODO: implement paging
+
+
+        final List<UserResource> resources = StreamSupport.stream(Person.SCHEMA.getEntities().spliterator(), false)
+                .map(this::toUser)
+                .filter(userResource -> needToFilter(searchRequest.getFilter(), userResource))
+                .collect(Collectors.toList());
+
+        log.debug("Found {} matching persons", resources.size());
+        return   new ListResponse<>(resources.size(), resources, 0, fetchCount);
+    }
+
+    private boolean needToFilter(String filter, UserResource userResource) {
         try {
-            log.debug("Finding persons that match {}...", searchRequest);
-            int fetchCount = searchRequest.getCount() != null ? searchRequest.getCount() : maxResults;
-
-            // TODO: implement paging
-
-            final Filter filter = Filter.fromString(searchRequest.getFilter());
-
-            final List<UserResource> resources = StreamSupport.stream(Person.SCHEMA.getEntities().spliterator(), false)
-                    .map(this::toUser)
-                    .filter(userResource -> matchesFilter(filter, userResource))
-                    .collect(Collectors.toList());
-
-            log.debug("Found {} matching persons", resources.size());
-            return   new ListResponse<>(resources.size(), resources, 0, fetchCount);
+            return filter == null || matchesFilter(Filter.fromString(filter), userResource);
         } catch (BadRequestException e) {
-            throw new cf.cplace.scim2.domain.BadRequestException(e.getMessage());
+            throw new cf.cplace.scim2.domain.BadRequestException(String.format("Invalid filter: '%s'", filter));
         }
     }
 
@@ -112,7 +117,7 @@ public class CplaceUserRepository implements UserRepository {
 
     private void mapUserToPerson(UserResource user, Person person) {
         person._login().set(user.getUserName());
-        person._name().set(personNameOf(user));
+        person._name().set(NameConverter.toCplaceName(user.getName()));
         person._hasBeenDisabled().set(user.getActive() != null && !user.getActive());
         person._password().setHash(passwordOf(user));
         person._locale().set(user.getPreferredLanguage());
@@ -162,23 +167,10 @@ public class CplaceUserRepository implements UserRepository {
         return password;
     }
 
-    private String personNameOf(UserResource user) {
-        if (user.getDisplayName() != null) {
-            return user.getDisplayName();
-        }
-        return displayNameOf(user.getName());
-    }
-
-    private String displayNameOf(Name name) {
-        if (name == null) {
-            return "";
-        }
-        return StringUtils.trimToEmpty(name.getGivenName()) + " " + StringUtils.trimToEmpty(name.getFamilyName());
-    }
-
     private UserResource toUser(Person person) {
-        UserResource user = new UserResource().setUserName(person._login().get())
-                .setName(new Name().setGivenName(person.getName()));
+        UserResource user = new UserResource()
+                .setUserName(person._login().get())
+                .setName(NameConverter.toScimName(person.getName()));
         user.setId(person.getId());
         user.setActive(person.isActiveAccount());
         user.setEmails(List.of(new Email()
