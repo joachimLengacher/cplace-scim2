@@ -47,8 +47,8 @@ public class CplaceUserRepository implements UserRepository {
     @Nonnull
     @Override
     public UserResource create(@Nonnull UserResource user) {
-        log.debug("Creating person with login='{}'...", user.getUserName());
         Preconditions.checkNotNull(user);
+        log.debug("Creating person with login='{}'...", user.getUserName());
         final Person person = Person.SCHEMA.createWritableEntity();
         mapUserToPerson(user, person);
         persist(person);
@@ -59,6 +59,7 @@ public class CplaceUserRepository implements UserRepository {
     @Nonnull
     @Override
     public UserResource findById(@Nonnull String id) {
+        Preconditions.checkNotNull(id);
         log.debug("Finding person with id='{}'...", id);
         return toUser(Person.SCHEMA.getEntityNotNull(id));
     }
@@ -66,6 +67,7 @@ public class CplaceUserRepository implements UserRepository {
     @Nonnull
     @Override
     public ListResponse<UserResource> find(@Nonnull SearchRequest searchRequest) {
+        Preconditions.checkNotNull(searchRequest);
         log.debug("Finding persons that match {}...", searchRequest);
         int fetchCount = searchRequest.getCount() != null ? searchRequest.getCount() : maxResults;
 
@@ -92,8 +94,8 @@ public class CplaceUserRepository implements UserRepository {
     @Nonnull
     @Override
     public UserResource update(@Nonnull UserResource user) {
-        log.debug("Updating person with id={}, login='{}'...", user.getId(), user.getUserName());
         Preconditions.checkNotNull(user);
+        log.debug("Updating person with id={}, login='{}'...", user.getId(), user.getUserName());
         final Person person = Person.SCHEMA.getEntityNotNull(user.getId()).createWritableCopy();
         mapUserToPerson(user, person);
         persist(person);
@@ -103,6 +105,7 @@ public class CplaceUserRepository implements UserRepository {
 
     @Override
     public void deleteById(@Nonnull String id) {
+        Preconditions.checkNotNull(id);
         log.warn("Deleting person entities not implemented!");
         throw new NotImplementedException("Deleting users is not implemented.");
     }

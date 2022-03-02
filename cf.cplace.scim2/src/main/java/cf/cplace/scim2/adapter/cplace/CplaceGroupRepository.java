@@ -28,6 +28,7 @@ public class CplaceGroupRepository implements GroupRepository {
     @Nonnull
     @Override
     public ListResponse<GroupResource> find(@Nonnull SearchRequest searchRequest) {
+        Preconditions.checkNotNull(searchRequest);
         log.debug("Finding groups that match {}...", searchRequest);
         int fetchCount = searchRequest.getCount() != null ? searchRequest.getCount() : maxResults;
 
@@ -42,6 +43,7 @@ public class CplaceGroupRepository implements GroupRepository {
     @Nonnull
     @Override
     public GroupResource findById(@Nonnull String id) {
+        Preconditions.checkNotNull(id);
         log.debug("Finding group with id='{}'...", id);
         return toGroupResource(Group.SCHEMA.getEntityNotNull(id));
     }
@@ -49,8 +51,8 @@ public class CplaceGroupRepository implements GroupRepository {
     @Nonnull
     @Override
     public GroupResource create(@Nonnull GroupResource group) {
-        log.debug("Creating group with name='{}'...", group.getDisplayName());
         Preconditions.checkNotNull(group);
+        log.debug("Creating group with name='{}'...", group.getDisplayName());
         final Group cplaceGroup = Group.SCHEMA.createWritableEntity();
         mapGroupResourceToCplaceGroup(group, cplaceGroup);
         persist(cplaceGroup);
@@ -62,8 +64,8 @@ public class CplaceGroupRepository implements GroupRepository {
     @Nonnull
     @Override
     public GroupResource update(@Nonnull GroupResource groupResource) {
-        log.debug("Updating groups with id={}, name='{}'...", groupResource.getId(), groupResource.getDisplayName());
         Preconditions.checkNotNull(groupResource);
+        log.debug("Updating groups with id={}, name='{}'...", groupResource.getId(), groupResource.getDisplayName());
         final Group group = Group.SCHEMA.getEntityNotNull(groupResource.getId()).createWritableCopy();
         mapGroupResourceToCplaceGroup(groupResource, group);
         persist(group);
