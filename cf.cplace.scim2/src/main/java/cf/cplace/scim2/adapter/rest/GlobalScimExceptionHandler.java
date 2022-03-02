@@ -5,6 +5,8 @@ import cf.cplace.scim2.domain.BadRequestException;
 import cf.cplace.scim2.domain.ConflictException;
 import cf.cplace.scim2.domain.NotImplementedException;
 import com.unboundid.scim2.common.messages.ErrorResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,9 +22,12 @@ import static org.springframework.http.HttpStatus.*;
 @ControllerAdvice
 public class GlobalScimExceptionHandler extends ResponseEntityExceptionHandler {
 
+    private static final Logger log = LoggerFactory.getLogger(GlobalScimExceptionHandler.class);
+
     @ExceptionHandler(Exception.class)
     @ResponseBody
     protected ResponseEntity<ErrorResponse> handleGeneralExceptions(Exception ex) {
+        log.error("Unexpected internal server error", ex);
         return apiError(INTERNAL_SERVER_ERROR, "Unexpected internal server error"); // do not reveal details
     }
 
