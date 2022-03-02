@@ -9,6 +9,8 @@ dependencies {
 	implementation 'org.hibernate.validator:hibernate-validator'
 
 	implementation 'org.springframework.boot:spring-boot'
+	implementation 'org.springframework.security:spring-security-config'
+	implementation 'org.springframework.security:spring-security-web'
 
 	implementation ('com.bettercloud:spring-boot-starter-scim2:1.0.0') {
 		exclude module: 'spring-boot-starter-tomcat'

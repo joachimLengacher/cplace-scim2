@@ -24,7 +24,6 @@ public class IntegrationTest {
     public static final String GROUP_NAME = "The Simpsons";
     public static final String GIVEN_NAME = "Bart";
     public static final String FAMILY_NAME = "Simpson";
-    public static final String XSRF_TOKEN = "baae13ec-8516-4d22-aff2-b7b809065a6b";
 
 
     @Rule
@@ -60,8 +59,6 @@ public class IntegrationTest {
                 .basic("mustermann@test.tricia", "ottto")
                 .header("Content-type", "application/json")
                 .header("Accept", "application/scim+json; charset=utf-8")
-                .header("X-XSRF-TOKEN", XSRF_TOKEN)
-                .cookie("XSRF-TOKEN", XSRF_TOKEN)
                 .and()
                 .body(user)
                 .when()
@@ -131,8 +128,6 @@ public class IntegrationTest {
                 .basic("mustermann@test.tricia", "ottto")
                 .header("Content-type", "application/json")
                 .header("Accept", "application/scim+json; charset=utf-8")
-                .header("X-XSRF-TOKEN", XSRF_TOKEN)
-                .cookie("XSRF-TOKEN", XSRF_TOKEN)
                 .and()
                 .body(user)
                 .when()
@@ -153,8 +148,6 @@ public class IntegrationTest {
                 .basic("mustermann@test.tricia", "ottto")
                 .header("Content-type", "application/json")
                 .header("Accept", "application/scim+json; charset=utf-8")
-                .header("X-XSRF-TOKEN", XSRF_TOKEN)
-                .cookie("XSRF-TOKEN", XSRF_TOKEN)
                 .when()
                 .delete("http://localhost:8083/intern/tricia/cplace-api/cf.cplace.scim2/Users/" + id)
                 .then()
@@ -227,8 +220,6 @@ public class IntegrationTest {
                 .basic("mustermann@test.tricia", "ottto")
                 .header("Content-type", "application/json")
                 .header("Accept", "application/scim+json; charset=utf-8")
-                .header("X-XSRF-TOKEN", XSRF_TOKEN)
-                .cookie("XSRF-TOKEN", XSRF_TOKEN)
                 .and()
                 .body(group)
                 .when()
@@ -251,8 +242,6 @@ public class IntegrationTest {
                 .basic("mustermann@test.tricia", "ottto")
                 .header("Content-type", "application/json")
                 .header("Accept", "application/scim+json; charset=utf-8")
-                .header("X-XSRF-TOKEN", XSRF_TOKEN)
-                .cookie("XSRF-TOKEN", XSRF_TOKEN)
                 .and()
                 .body(group)
                 .when()
