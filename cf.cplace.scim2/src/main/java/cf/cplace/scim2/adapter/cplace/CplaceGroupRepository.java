@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 public class CplaceGroupRepository implements GroupRepository {
 
     private static final Logger log = LoggerFactory.getLogger(CplaceGroupRepository.class);
@@ -65,9 +67,22 @@ public class CplaceGroupRepository implements GroupRepository {
     @Override
     public GroupResource update(@Nonnull GroupResource groupResource) {
         Preconditions.checkNotNull(groupResource);
-        log.debug("Updating groups with id={}, name='{}'...", groupResource.getId(), groupResource.getDisplayName());
+        log.debug("Updating group with id={}, name='{}'...", groupResource.getId(), groupResource.getDisplayName());
         final Group group = Group.SCHEMA.getEntityNotNull(groupResource.getId()).createWritableCopy();
         mapGroupResourceToCplaceGroup(groupResource, group);
+        persist(group);
+        log.debug("Successfully updated group with id='{}'.", group.getId());
+        return toGroupResource(group);
+    }
+
+    @Nonnull
+    @Override
+    public GroupResource patch(@Nonnull String groupId, @Nonnull GroupResource groupResource) {
+        Preconditions.checkNotNull(groupResource);
+        Preconditions.checkNotNull(groupId);
+        log.debug("Patching group with id={}...", groupId);
+        final Group group = Group.SCHEMA.getEntityNotNull(groupId).createWritableCopy();
+        mapNonEmptyGroupFieldsToCplaceGroup(groupResource, group);
         persist(group);
         log.debug("Successfully updated group with id='{}'.", group.getId());
         return toGroupResource(group);
@@ -77,7 +92,18 @@ public class CplaceGroupRepository implements GroupRepository {
         cplaceGroup._name().set(group.getDisplayName());
         cplaceGroup._isTechnicalGroup().set(false);
         cplaceGroup._administrators().set(Group.getAdminGroup());
+
+        // TODO: update members
     }
+
+    private void mapNonEmptyGroupFieldsToCplaceGroup(GroupResource groupResource, Group group) {
+        if (isNotBlank(groupResource.getDisplayName())) {
+            group._name().set(groupResource.getDisplayName());
+        }
+
+        // TODO: update members
+    }
+
 
     private void persist(Group cplaceGroup) {
         try {

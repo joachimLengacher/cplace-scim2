@@ -52,4 +52,11 @@ public class GroupController {
         log.debug("Updating group with id='{}', displayName='{}'...", groupId, group.getDisplayName());
         return groupRepository.update(group);
     }
+
+    @PatchMapping("/{groupId}")
+    @ResponseStatus(HttpStatus.OK)
+    public GroupResource patchGroup(@RequestBody GroupResource group, @PathVariable String groupId) {
+        log.debug("Patching group with id='{}', displayName='{}'...", groupId, group.getDisplayName());
+        return groupRepository.patch(groupId, group);
+    }
 }

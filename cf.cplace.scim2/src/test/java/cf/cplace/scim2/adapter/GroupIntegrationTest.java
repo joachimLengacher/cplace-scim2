@@ -27,6 +27,7 @@ public class GroupIntegrationTest {
         String id = createGroup();
         findGroup(id);
         updateGroup(id);
+        patchGroup(id);
     }
 
     private void findAllGroups() {
@@ -91,6 +92,26 @@ public class GroupIntegrationTest {
 
         assertThat(response.statusCode(), is(OK.value()));
         assertGroupValues(response, "The Simpsons Family");
+        assertThat(response.jsonPath().getString("id"), is(id));
+    }
+
+
+    private void patchGroup(String id) {
+        Response response = given()
+                .auth()
+                .preemptive()
+                .basic("mustermann@test.tricia", "ottto")
+                .header("Content-type", "application/json")
+                .header("Accept", "application/scim+json; charset=utf-8")
+                .and()
+                .body("{\"displayName\":\"The Simpsons\"}")
+                .when()
+                .patch("http://localhost:8083/intern/tricia/cplace-api/cf.cplace.scim2/Groups/" + id)
+                .then()
+                .extract().response();
+
+        assertThat(response.statusCode(), is(OK.value()));
+        assertGroupValues(response, "The Simpsons");
         assertThat(response.jsonPath().getString("id"), is(id));
     }
 

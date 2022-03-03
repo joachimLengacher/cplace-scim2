@@ -18,15 +18,15 @@ public interface UserRepository {
     /**
      * Updates a user completely. In contrast to the {@link #patch(String, UserResource)} method, this method will
      * overwrite all the fields of the user, even if they are {@code null}. Use this method in combination with the
-     * {@link #find(SearchRequest)} method in order to get a complete user, update sme fields and save it again.
-     * Note that the user's ID must not be changed, as it will be used to find the existing user that must be update.
+     * {@link #findById(String)} method in order to get a complete user, update some fields and save it again.
+     * Note that the user's ID must not be changed, as it will be used to find the existing user that must be updated.
      */
     @Nonnull
     UserResource update(@Nonnull UserResource user) throws IOException;
 
     /**
      * Updates a user partially. In contrast to {@link #update(UserResource)} this method will not overwrite fields
-     * that are {@code null} or are missing.
+     * that are blank.
      */
     @Nonnull
     UserResource patch(@Nonnull String userId, @Nonnull UserResource partialUser) throws IOException;
