@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @RestController
 @ScimResource(description = "Access User Resources", name = "User", schema = UserResource.class)
 @CplaceRequestMapping(path = "/cf.cplace.scim2/Users")
@@ -27,16 +29,23 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserResource createUser(@RequestBody UserResource user) {
+    public UserResource createUser(@RequestBody UserResource user) throws IOException {
         log.debug("Creating user with userName='{}'...", user.getUserName());
         return userRepository.create(user);
     }
 
     @PutMapping("/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public UserResource updateUser(@RequestBody UserResource user, @PathVariable String userId) {
+    public UserResource updateUser(@RequestBody UserResource user, @PathVariable String userId) throws IOException {
         log.debug("Updating user with id={}, userName='{}'...", userId, user.getUserName());
         return userRepository.update(user);
+    }
+
+    @PatchMapping("/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public UserResource patchUser(@RequestBody UserResource partialUser, @PathVariable String userId) throws IOException {
+        log.debug("Patching user with id={}, userName='{}'...", userId, partialUser.getUserName());
+        return userRepository.patch(userId, partialUser);
     }
 
     @DeleteMapping("/{userId}")

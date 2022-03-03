@@ -27,10 +27,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import static com.google.common.base.Strings.nullToEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class CplaceUserRepository implements UserRepository {
 
@@ -46,7 +45,7 @@ public class CplaceUserRepository implements UserRepository {
 
     @Nonnull
     @Override
-    public UserResource create(@Nonnull UserResource user) {
+    public UserResource create(@Nonnull UserResource user) throws IOException {
         Preconditions.checkNotNull(user);
         log.debug("Creating person with login='{}'...", user.getUserName());
         final Person person = Person.SCHEMA.createWritableEntity();
@@ -93,13 +92,26 @@ public class CplaceUserRepository implements UserRepository {
 
     @Nonnull
     @Override
-    public UserResource update(@Nonnull UserResource user) {
+    public UserResource update(@Nonnull UserResource user) throws IOException {
         Preconditions.checkNotNull(user);
         log.debug("Updating person with id={}, login='{}'...", user.getId(), user.getUserName());
         final Person person = Person.SCHEMA.getEntityNotNull(user.getId()).createWritableCopy();
         mapUserToPerson(user, person);
         persist(person);
         log.debug("Successfully updated person with id='{}'.", person.getId());
+        return toUser(person);
+    }
+
+    @Nonnull
+    @Override
+    public UserResource patch(@Nonnull String userId, @Nonnull UserResource partialUser) throws IOException {
+        Preconditions.checkNotNull(partialUser);
+        Preconditions.checkNotNull(userId);
+        log.debug("Patching person with id={}...", userId);
+        final Person person = Person.SCHEMA.getEntityNotNull(userId).createWritableCopy();
+        mapNonEmptyUserFieldsToPerson(partialUser, person);
+        persist(person);
+        log.debug("Successfully patched person with id='{}'.", person.getId());
         return toUser(person);
     }
 
@@ -118,25 +130,41 @@ public class CplaceUserRepository implements UserRepository {
         }
     }
 
-    private void mapUserToPerson(UserResource user, Person person) {
+    private void mapUserToPerson(UserResource user, Person person) throws IOException {
         person._login().set(user.getUserName());
         person._name().set(NameConverter.toCplaceName(user.getName()));
         person._hasBeenDisabled().set(user.getActive() != null && !user.getActive());
         person._password().setHash(passwordOf(user));
         person._locale().set(user.getPreferredLanguage());
         copyPhoto(user, person);
-        // TODO: potentially more to do here
     }
 
-    private void copyPhoto(UserResource user, Person person) {
-        try {
-            if(hasPhoto(user)) {
-                updatePhoto(person, photoOf(user));
-            } else {
-                // TODO: delete photo in this case or just keep the one we might already have?
-            }
-        } catch (IOException e) {
-            log.error("Failed to set image for user '" + user.getUserName() + "'", e);
+    private void mapNonEmptyUserFieldsToPerson(UserResource user, Person person) throws IOException {
+        if (isNotBlank(user.getUserName())) {
+            person._login().set(user.getUserName());
+        }
+        if (user.getName() != null) {
+            person._name().set(NameConverter.toCplaceName(user.getName()));
+        }
+        if (user.getActive() != null) {
+            person._hasBeenDisabled().set(!user.getActive());
+        }
+        if (isNotBlank(user.getPassword())) {
+            person._password().setHash(user.getPassword());
+        }
+        if (isNotBlank(user.getPreferredLanguage())) {
+            person._locale().set(user.getPreferredLanguage());
+        }
+        if(hasPhoto(user)) {
+            updatePhoto(person, photoOf(user));
+        }
+    }
+
+    private void copyPhoto(UserResource user, Person person) throws IOException {
+        if(hasPhoto(user)) {
+            updatePhoto(person, photoOf(user));
+        } else {
+            // TODO: delete photo
         }
     }
 

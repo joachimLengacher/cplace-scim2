@@ -33,6 +33,7 @@ public class UserIntegrationTest {
         findUser(id);
         findAllUsers();
         updateUser(id);
+        patchUser(id);
         deleteUser(id);
     }
 
@@ -130,6 +131,36 @@ public class UserIntegrationTest {
         assertThat(response.jsonPath().getString("id"), is(id));
     }
 
+    private void patchUser(String id) {
+        UserResource originalUser = given()
+                .auth()
+                .preemptive()
+                .basic("mustermann@test.tricia", "ottto")
+                .header("Content-type", "application/json")
+                .header("Accept", "application/scim+json; charset=utf-8")
+                .when()
+                .get("http://localhost:8083/intern/tricia/cplace-api/cf.cplace.scim2/Users/" + id)
+                .then()
+                .assertThat().statusCode(OK.value())
+                .extract().response().as(UserResource.class);
+
+        Response response = given()
+                .auth()
+                .preemptive()
+                .basic("mustermann@test.tricia", "ottto")
+                .header("Content-type", "application/json")
+                .header("Accept", "application/scim+json; charset=utf-8")
+                .and()
+                .body("{\"userName\":\"maggie.simpson@cplace.io\"}")
+                .when()
+                .patch("http://localhost:8083/intern/tricia/cplace-api/cf.cplace.scim2/Users/" + id)
+                .then()
+                .extract().response();
+
+        assertThat(response.statusCode(), is(OK.value()));
+        assertUserValues(response, "maggie.simpson@cplace.io", originalUser.getName().getGivenName(), originalUser.getName().getFamilyName(), "maggie.simpson@cplace.io", originalUser.getActive());
+        assertThat(response.jsonPath().getString("id"), is(id));
+    }
 
     private void deleteUser(String id) {
         Response response = given()
